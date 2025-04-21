@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class FirejailExecutor implements CodeExecutor {
     //执行器,返回每个测试用例结果
     @Override
-    public CaseResult execute(TestCase testCase, Path workDir, String[] command) throws IOException, InterruptedException {
+    public CaseResult execute(TestCase testCase, Path workDir, String[] command,long timeLimit,double memoryLimit) throws IOException, InterruptedException {
 
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(workDir.toFile());
@@ -91,12 +91,12 @@ public class FirejailExecutor implements CodeExecutor {
         String actualOutput = outputBuilder.toString();
 
         // 检查该测试用例是否通过
-        return evaluateTestCase(testCase, memoryUsed, executionTime, actualOutput, exitCode);
+        return evaluateTestCase(testCase, memoryUsed, executionTime, actualOutput, timeLimit,memoryLimit);
     }
 
-    private CaseResult evaluateTestCase(TestCase testCase, double memoryUsed, long executionTime, String actualOutput, int exitCode) {
+    private CaseResult evaluateTestCase(TestCase testCase, double memoryUsed, long executionTime, String actualOutput,long timeLimit,double memoryLimit) {
         // 检查内存限制
-        if (memoryUsed > testCase.memoryLimit()) {
+        if (memoryUsed > memoryLimit) {
             return CaseResult.builder()
                     .status(SimpleResult.MEMORY_LIMIT_EXCEEDED)
                     .executionTime(executionTime)
@@ -104,6 +104,16 @@ public class FirejailExecutor implements CodeExecutor {
                     .actualOutput(actualOutput)
                     .input(testCase.input())
                     .build();
+        }
+
+        // 检查时间限制
+        if (executionTime > timeLimit) {
+            return CaseResult.builder()
+                   .status(SimpleResult.TIME_LIMIT_EXCEEDED)
+                   .executionTime(executionTime)
+                   .actualOutput(actualOutput)
+                   .input(testCase.input())
+                   .build();
         }
 
         // 比较输出
@@ -157,8 +167,7 @@ public class FirejailExecutor implements CodeExecutor {
             int exitCode = queryProcess.waitFor();
             if(exitCode==0&&memoryUsageStr != null && !memoryUsageStr.trim().isEmpty()){
                 memoryUsageKiB = Long.parseLong(memoryUsageStr.trim());
-                // 4. 转换为MB
-                return memoryUsageKiB>>10;
+                return memoryUsageKiB;
             }else {
                 return 1;
             }

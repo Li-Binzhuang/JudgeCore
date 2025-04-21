@@ -2,7 +2,6 @@ package org.laoli.judge.model.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  *@description 标准错误枚举

@@ -47,7 +47,18 @@ public class JudgeService implements IJudgeService {
      * 主判题方法，处理一个完整的提交
      */
     @Override
-    public JudgeResult judge(List<TestCase> testCases, String sourceCode, Language language) {
+    public JudgeResult judge(List<TestCase> testCases, String sourceCode, Language language,long timeLimit,double memoryLimit) {
+        // 判空
+        if (testCases == null || testCases.isEmpty() || sourceCode == null || sourceCode.isEmpty()) {
+            return JudgeResult.builder()
+                    .status(SimpleResult.SYSTEM_ERROR)
+                    .message("Invalid input")
+                    .build();
+        }
+        if(timeLimit<=0||memoryLimit<=0){
+            timeLimit=1000;
+            memoryLimit=2048;
+        }
         Path tempDir = null;
         //使用compiler工厂获取对应语言的编译器
         Compiler compiler = compilerFactory.getCompiler(language);
@@ -64,7 +75,7 @@ public class JudgeService implements IJudgeService {
             }
 
             //并发执行所有测试用例
-            List<CaseResult> caseResults = runTestsConcurrently(testCases, tempDir, language);
+            List<CaseResult> caseResults = runTestsConcurrently(testCases, tempDir, language,timeLimit,memoryLimit);
 
             // 汇总结果
             return summarize.summarizeResults(caseResults);
@@ -79,12 +90,12 @@ public class JudgeService implements IJudgeService {
                 .status(SimpleResult.SYSTEM_ERROR).build();
     }
 
-    private synchronized List<CaseResult> runTestsConcurrently(List<TestCase> testCases, Path tempDir, Language language) {
+    private synchronized List<CaseResult> runTestsConcurrently(List<TestCase> testCases, Path tempDir, Language language,long timeLimit,double memoryLimit) {
         // 并行执行所有测试用例
         String[] command = languageCommandFactory.getCommand(language, tempDir);
         List<Future<CaseResult>> futures = new ArrayList<>();
         testCases.forEach(testCase -> {
-            futures.add(executorService.submit(() -> executor.execute(testCase, tempDir,command)));
+            futures.add(executorService.submit(() -> executor.execute(testCase, tempDir,command,timeLimit,memoryLimit)));
         });
         List<CaseResult> caseResults = new ArrayList<>();
         for (Future<CaseResult> future : futures) {

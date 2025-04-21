@@ -1,7 +1,6 @@
 package org.laoli.judge.service.execute;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.laoli.judge.model.enums.Language;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +43,7 @@ public class LanguageCommandFactory {
      * @param workDir  工作目录路径
      * @return 生成的命令数组
      */
-    public String[] getCommand(@NotNull Language language, @NotNull Path workDir) {
+    public String[] getCommand( Language language, Path workDir) {
         CommandTemplate commandBuilder = languageMap.get(language);
         if (commandBuilder == null) {
             log.info("Unsupported language: {}", language);

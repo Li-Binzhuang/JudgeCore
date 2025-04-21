@@ -17,14 +17,8 @@ import java.util.List;
 public class Summarize implements ISummarize {
     @Override
     public JudgeResult summarizeResults(List<CaseResult> caseResults) {
-        if (caseResults.isEmpty()) {
-            return JudgeResult.builder()
-               .status(SimpleResult.SYSTEM_ERROR)
-               .message("No test cases executed")
-               .build();
-        }
 
-        if(caseResults.size()==1){
+        if(caseResults.size()==1&&caseResults.get(0).status()!=SimpleResult.ACCEPTED){
             return JudgeResult.builder()
                 .status(caseResults.get(0).status())
                 .message(caseResults.get(0).actualOutput())
