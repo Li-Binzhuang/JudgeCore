@@ -1,8 +1,6 @@
 package org.laoli.judge.model.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import org.laoli.judge.model.enums.SimpleResult;
 
 /**
