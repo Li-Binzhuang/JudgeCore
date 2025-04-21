@@ -1,0 +1,5 @@
+spring:
+  config:
+    name: JudgeMachine-app
+  profiles:
+    active: dev
