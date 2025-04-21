@@ -13,7 +13,6 @@ package org.laoli;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -645,7 +644,6 @@ class FirejailExecutor implements CodeExecutor {
         }
     }
 
-    @NotNull
     private static Result getResult(TestCase testCase, Path workDir, String[] command,int times) throws IOException {
         // 记录开始时间
         long startTime = System.currentTimeMillis();
@@ -840,7 +838,6 @@ class JudgeService {
     }
 
     //并行执行所有测试用例
-    @NotNull
     private List<CaseResult> getCaseResults(List<TestCase> testCases, Path tempDir, CodeExecutor executor) {
         // 并行执行所有测试用例
         List<Future<CaseResult>> futures = new ArrayList<>();
@@ -868,7 +865,6 @@ class JudgeService {
     }
 
     // 顺序执行所有测试用例
-    @NotNull
     private List<CaseResult> getCaseResultsSequential(List<TestCase> testCases, Path tempDir, CodeExecutor executor) {
         List<CaseResult> caseResults = new ArrayList<>();
         for (TestCase testCase : testCases) {

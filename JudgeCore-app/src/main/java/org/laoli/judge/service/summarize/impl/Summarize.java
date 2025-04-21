@@ -21,7 +21,7 @@ public class Summarize implements ISummarize {
         if(caseResults.size()==1&&caseResults.get(0).status()!=SimpleResult.ACCEPTED){
             return JudgeResult.builder()
                 .status(caseResults.get(0).status())
-                .message(caseResults.get(0).actualOutput())
+                .message(caseResults.get(0).message())
                 .executionTime(caseResults.get(0).executionTime())
                 .memoryUsed(caseResults.get(0).memoryUsed())
                 .caseResults(caseResults.get(0))

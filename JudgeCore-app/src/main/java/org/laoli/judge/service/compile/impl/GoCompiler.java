@@ -23,7 +23,7 @@ public class GoCompiler implements Compiler {
         Path sourceFile = workDir.resolve("solution.go");
         Files.write(sourceFile, sourceCode.getBytes());
         // 编译Go代码
-        ProcessBuilder pb = new ProcessBuilder("go","build", "-o", "solution", sourceFile.toString());
+        ProcessBuilder pb = new ProcessBuilder("go","build", "-o", "go_solution", sourceFile.toString());
         return preCompile(workDir, pb);
     }
 }

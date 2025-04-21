@@ -9,7 +9,10 @@ import org.laoli.judge.model.enums.SimpleResult;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,37 +51,46 @@ public class FirejailExecutor implements CodeExecutor {
         // 记录结束时间
         long endTime = System.currentTimeMillis();
         long executionTime = endTime - startTime;
+        // 读取标准输出
+        byte[] buffer = new byte[1024];
+        int bytesRead;
 
         // 强制终止进程（如果还在运行）
         if (!completed) {
             process.destroyForcibly();
-            process.waitFor(1, TimeUnit.SECONDS); // 给进程一点时间来终止
-            return CaseResult.builder()
-                  .status(SimpleResult.TIME_LIMIT_EXCEEDED)
-                  .executionTime(executionTime)
-                  .memoryUsed(memoryUsed)
-                  .actualOutput("Time limit exceeded")
-                  .build();
-        }
-
-        // 获取退出代码
-        int exitCode = process.exitValue();
-        // 读取标准输出
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        if (exitCode!= 0) {
+            process.waitFor(5, TimeUnit.SECONDS); // 给进程一点时间来终止
             StringBuilder errorBuilder = new StringBuilder();
-            try(InputStream stderr = process.getErrorStream();){
+            try(InputStream stderr = process.getErrorStream();) {
                 // 读取错误输出（如果有）
                 while ((bytesRead = stderr.read(buffer)) != -1) {
                     errorBuilder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
                 }
             }
-
             return CaseResult.builder()
-                 .status(SimpleResult.RUNTIME_ERROR)
-                 .actualOutput(errorBuilder.toString())
-                 .build();
+                    .status(SimpleResult.TIME_LIMIT_EXCEEDED)
+                    .message(errorBuilder.toString())
+                    .executionTime(executionTime)
+                    .memoryUsed(memoryUsed)
+                    .actualOutput("Time limit exceeded")
+                    .build();
+        }
+
+        // 获取退出代码
+        int exitCode = process.exitValue();
+
+        if (exitCode!= 0) {
+            StringBuilder errorBuilder = new StringBuilder();
+            try(InputStream stderr = process.getErrorStream()){
+                // 读取错误输出（如果有）
+                while ((bytesRead = stderr.read(buffer)) != -1) {
+                    errorBuilder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
+                }
+            }
+            return CaseResult.builder()
+                    .message(errorBuilder.toString())
+                    .status(SimpleResult.RUNTIME_ERROR)
+                    .actualOutput(errorBuilder.toString())
+                    .build();
         }
         // 捕获标准输出和错误输出
         StringBuilder outputBuilder = new StringBuilder();
@@ -94,7 +106,7 @@ public class FirejailExecutor implements CodeExecutor {
         return evaluateTestCase(testCase, memoryUsed, executionTime, actualOutput, timeLimit,memoryLimit);
     }
 
-    private CaseResult evaluateTestCase(TestCase testCase, double memoryUsed, long executionTime, String actualOutput,long timeLimit,double memoryLimit) {
+    private CaseResult evaluateTestCase(TestCase testCase, double memoryUsed,long executionTime, String actualOutput,long timeLimit,double memoryLimit) {
         // 检查内存限制
         if (memoryUsed > memoryLimit) {
             return CaseResult.builder()
@@ -152,27 +164,21 @@ public class FirejailExecutor implements CodeExecutor {
         return result;
     }
 
-    // 估算内存使用的方法
     private double estimateMemoryUsage(Long pid) {
-        long memoryUsageKiB=0;
-        try {
-            ProcessBuilder pbQuery = new ProcessBuilder("ps", "-o", "rss=", "-p", String.valueOf(pid));
-            pbQuery.redirectError(ProcessBuilder.Redirect.INHERIT); // 将错误流重定向到当前进程的错误流
-            Process queryProcess = pbQuery.start();
-            // 3. 读取命令输出
-            String memoryUsageStr = null;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(queryProcess.getInputStream()))) {
-                memoryUsageStr = reader.readLine();
-            }
-            int exitCode = queryProcess.waitFor();
-            if(exitCode==0&&memoryUsageStr != null && !memoryUsageStr.trim().isEmpty()){
-                memoryUsageKiB = Long.parseLong(memoryUsageStr.trim());
-                return memoryUsageKiB;
-            }else {
+    try {
+            Path statmPath = Paths.get("/proc", String.valueOf(pid), "statm");
+            List<String> lines = Files.readAllLines(statmPath);
+
+            if (lines.isEmpty()) {
                 return 1;
             }
-        } catch (IOException | InterruptedException e) {
-            log.info(e.getMessage());
+
+            String[] stats = lines.get(0).split("\\s+");
+            long residentPages = Long.parseLong(stats[1]); // 第二列为常驻集大小（单位：页）
+
+        return residentPages << 2;
+        } catch (IOException e) {
+            log.info("Error reading memory usage: " + e.getMessage());
             return 1;
         }
     }

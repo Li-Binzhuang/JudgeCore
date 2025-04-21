@@ -26,7 +26,7 @@ public class CCompiler implements Compiler {
 
         // 编译C代码
         ProcessBuilder pb = new ProcessBuilder(
-                "gcc", "-std=c11", "-O3", "-march=native", "-flto", "-Wall" , "-o", "solution", sourceFile.toString());
+                "gcc", "-std=c11", "-O3", "-march=native", "-flto", "-Wall" , "-o", "c_solution", sourceFile.toString());
         return preCompile(workDir, pb);
     }
 }

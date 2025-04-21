@@ -29,6 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @Author laoli
  * @Date 2025/4/20 15:58
  */
+
 @Slf4j
 @Service
 public class JudgeService implements IJudgeService {
@@ -55,9 +56,9 @@ public class JudgeService implements IJudgeService {
                     .message("Invalid input")
                     .build();
         }
-        if(timeLimit<=0||memoryLimit<=0){
-            timeLimit=1000;
-            memoryLimit=2048;
+        if(timeLimit<2000 && memoryLimit<(1<<23)){
+            timeLimit=2000;
+            memoryLimit=1<<23;
         }
         Path tempDir = null;
         //使用compiler工厂获取对应语言的编译器

@@ -25,7 +25,7 @@ public class RustCompiler implements Compiler {
         Files.write(sourceFile, sourceCode.getBytes());
 
         // 编译C代码
-        ProcessBuilder pb = new ProcessBuilder("rustc", "-C" ,"opt-level=3" , "-o", "solution", sourceFile.toString());
+        ProcessBuilder pb = new ProcessBuilder("rustc", "-C" ,"opt-level=3" , "-o", "rust_solution", sourceFile.toString());
         return preCompile(workDir, pb);
     }
 }

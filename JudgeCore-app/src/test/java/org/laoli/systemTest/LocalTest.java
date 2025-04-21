@@ -2,13 +2,15 @@ package org.laoli.systemTest;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.laoli.judge.model.aggregate.JudgeResult;
 import org.laoli.judge.model.enums.Language;
 import org.laoli.judge.model.entity.TestCase;
 import org.laoli.judge.service.IJudgeService;
 import org.springframework.boot.test.context.SpringBootTest;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +29,17 @@ public class LocalTest {
     private IJudgeService judgeService;
     static List<TestCase> testCases;
 
+    long timeLimit=2000;
+    double memoryLimit=1<<23;
+
     @BeforeAll
     public static void TestCases(){
         // 创建测试用例
         testCases = new ArrayList<>();
-        testCases.add(new TestCase("1 2\n", "3\n", 20000, 64));
-        testCases.add(new TestCase("5 7\n", "12\n", 20000, 64));
-        testCases.add(new TestCase("1000 1000\n", "2000\n", 2000, 64));
-        testCases.add(new TestCase("1000000 1000000\n", "2000000\n", 2000, 64));
+        testCases.add(new TestCase("1 2\n", "3\n"));
+        testCases.add(new TestCase("5 7\n", "12\n"));
+        testCases.add(new TestCase("1000 1000\n", "2000\n"));
+        testCases.add(new TestCase("1000000 1000000\n", "2000000\n"));
     }
 
     @Test
@@ -51,8 +56,8 @@ public class LocalTest {
             "        System.out.println(a + b);\n" +
             "    }\n" +
             "}";
-        JudgeResult judge = judgeService.judge(testCases, javaCode, Language.JAVA);
-        log.info("JavaJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} MB, Case Results: {}",
+        JudgeResult judge = judgeService.judge(testCases, javaCode, Language.JAVA,timeLimit,memoryLimit);
+        log.info("JavaJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                  judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
     }
     @Test
@@ -66,8 +71,8 @@ public class LocalTest {
             "    std::cout << a + b << std::endl;\n" +
             "    return 0;\n" +
             "}";
-        JudgeResult judge = judgeService.judge(testCases, cppCode, Language.CPP);
-        log.info("CppJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} MB, Case Results: {}",
+        JudgeResult judge = judgeService.judge(testCases, cppCode, Language.CPP,timeLimit,memoryLimit);
+        log.info("CppJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                  judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
 
     }
@@ -77,8 +82,8 @@ public class LocalTest {
         String pythonCode =
             "a, b = map(int, input().split())\n" +
             "print(a + b)";
-        JudgeResult judge = judgeService.judge(testCases, pythonCode, Language.PYTHON);
-        log.info("PythonJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} MB, Case Results: {}",
+        JudgeResult judge = judgeService.judge(testCases, pythonCode, Language.PYTHON,timeLimit,memoryLimit);
+        log.info("PythonJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                  judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
     }
 
@@ -95,8 +100,8 @@ public class LocalTest {
                     return 0;
                 }
                 """;
-        JudgeResult judge = judgeService.judge(testCases, cCode, Language.C);
-        log.info("CJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} MB, Case Results: {}",
+        JudgeResult judge = judgeService.judge(testCases, cCode, Language.C,timeLimit,memoryLimit);
+        log.info("CJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                  judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
     }
     @Test
@@ -111,8 +116,8 @@ public class LocalTest {
                     fmt.Println(a + b)
                 }
                 """;
-        JudgeResult judge = judgeService.judge(testCases, goCode, Language.GO);
-        log.info("GoJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} MB, Case Results: {}",
+        JudgeResult judge = judgeService.judge(testCases, goCode, Language.GO,timeLimit,memoryLimit);
+        log.info("GoJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                  judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
     }
 
@@ -124,8 +129,8 @@ public class LocalTest {
             "fscanf(STDIN, \"%d %d\", $a, $b);\n" +
             "echo $a + $b;\n";
 
-        JudgeResult judge = judgeService.judge(testCases, phpCode, Language.PHP);
-        log.info("PhpJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} MB, Case Results: {}",
+        JudgeResult judge = judgeService.judge(testCases, phpCode, Language.PHP,timeLimit,memoryLimit);
+        log.info("PhpJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                  judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
     }
     @Test
@@ -150,8 +155,8 @@ public class LocalTest {
                 println!("{}", numbers[0] + numbers[1]);
             }
             """;
-        JudgeResult judge = judgeService.judge(testCases, rustCode, Language.RUST);
-        log.info("RustJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} MB, Case Results: {}",
+        JudgeResult judge = judgeService.judge(testCases, rustCode, Language.RUST,timeLimit,memoryLimit);
+        log.info("RustJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                  judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
     }
     @Test
@@ -165,8 +170,8 @@ public class LocalTest {
             "    val b = scanner.nextInt()\n" +
             "    println(a + b)\n" +
             "}";
-        JudgeResult judge = judgeService.judge(testCases, kotlinCode, Language.KOTLIN);
-        log.info("KotlinJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} MB, Case Results: {}",
+        JudgeResult judge = judgeService.judge(testCases, kotlinCode, Language.KOTLIN,timeLimit,memoryLimit);
+        log.info("KotlinJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                  judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
     }
 }

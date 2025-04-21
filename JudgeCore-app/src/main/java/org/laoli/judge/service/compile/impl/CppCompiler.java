@@ -24,7 +24,7 @@ public class CppCompiler implements Compiler {
 
         // 编译C++代码
         ProcessBuilder pb = new ProcessBuilder(
-                "g++","-std=c++17", "-O3", "-march=native","-flto", "-Wall" , "-o", "solution",
+                "g++","-std=c++17", "-O3", "-march=native","-flto", "-Wall" , "-o", "cpp_solution",
                 sourceFile.toString());
 
         return preCompile(workDir, pb);

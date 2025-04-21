@@ -26,10 +26,10 @@ public class LanguageCommandFactory {
 
     public LanguageCommandFactory() {
         languageMap = new HashMap<>();
-        languageMap.put(Language.CPP, this::buildCOrCppCommand);
-        languageMap.put(Language.C, this::buildCOrCppCommand);
-        languageMap.put(Language.RUST, this::buildCOrCppCommand);
-        languageMap.put(Language.GO, this::buildCOrCppCommand);
+        languageMap.put(Language.CPP, this::buildCppCommand);
+        languageMap.put(Language.C, this::buildCCommand);
+        languageMap.put(Language.RUST, this::buildRustCommand);
+        languageMap.put(Language.GO, this::buildGoCommand);
         languageMap.put(Language.JAVA, this::buildJavaCommand);
         languageMap.put(Language.PYTHON, this::buildPythonCommand);
         languageMap.put(Language.PHP, this::buildPhpCommand);
@@ -77,14 +77,42 @@ public class LanguageCommandFactory {
         command.addAll(Arrays.asList("python3","-OO", "-u", workDir.resolve("solution.py").toString()));
         return command.toArray(new String[0]);
     }
-
-    // 构建 C/C++/Rust 命令
-    private String[] buildCOrCppCommand(Path workDir) {
+        // 构建 C 命令
+    private String[] buildCCommand(Path workDir) {
         List<String> command = new ArrayList<>();
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
         command.add("--private=" + workDir.toString());
-        command.add(workDir.resolve("solution").toString());
+        command.add(workDir.resolve("c_solution").toString());
+        return command.toArray(new String[0]);
+    }
+        // 构建 C++ 命令
+    private String[] buildCppCommand(Path workDir) {
+        List<String> command = new ArrayList<>();
+        command.add(FIREJAIL_CMD);
+        command.addAll(SANDBOX_COMMON_OPTIONS);
+        command.add("--private=" + workDir.toString());
+        command.add(workDir.resolve("cpp_solution").toString());
+        return command.toArray(new String[0]);
+    }
+    // 构建 Rust 命令
+    private String[] buildRustCommand(Path workDir) {
+        List<String> command = new ArrayList<>();
+        command.add(FIREJAIL_CMD);
+        command.addAll(SANDBOX_COMMON_OPTIONS);
+        command.add("--private=" + workDir.toString());
+        command.add(workDir.resolve("rust_solution").toString());
+        return command.toArray(new String[0]);
+    }
+
+
+    // 构建 Go 命令
+    private String[] buildGoCommand(Path workDir) {
+        List<String> command = new ArrayList<>();
+        command.add(FIREJAIL_CMD);
+        command.addAll(SANDBOX_COMMON_OPTIONS);
+        command.add("--private=" + workDir.toString());
+        command.add(workDir.resolve("go_solution").toString());
         return command.toArray(new String[0]);
     }
 
