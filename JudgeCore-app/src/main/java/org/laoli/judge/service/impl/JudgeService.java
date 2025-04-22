@@ -56,9 +56,9 @@ public class JudgeService implements IJudgeService {
                     .message("Invalid input")
                     .build();
         }
-        if(timeLimit<2000 && memoryLimit<(1<<23)){
-            timeLimit=2000;
-            memoryLimit=1<<23;
+        if(timeLimit<1000 && memoryLimit<(1<<22)){
+            timeLimit=1000;
+            memoryLimit=1<<22;
         }
         Path tempDir = null;
         //使用compiler工厂获取对应语言的编译器

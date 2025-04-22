@@ -32,8 +32,10 @@ public class JudgeServer extends JudgeServiceGrpc.JudgeServiceImplBase {
 
         String actualOutput = "";
         String expectedOutput = "";
+        String input = "";
 
         if(judgeResult.caseResults()!=null){
+            input = judgeResult.caseResults().input()==null?"":judgeResult.caseResults().input();
             actualOutput = judgeResult.caseResults().actualOutput()==null?"":judgeResult.caseResults().actualOutput();
             expectedOutput = judgeResult.caseResults().expectedOutput()==null?"":judgeResult.caseResults().expectedOutput();
         }
@@ -41,7 +43,8 @@ public class JudgeServer extends JudgeServiceGrpc.JudgeServiceImplBase {
         responseObserver.onNext(JudgeCore.Response.newBuilder()
                 .setCaseInfo(JudgeCore.ReturnCaseInfo.newBuilder()
                         .setActualOutput(actualOutput)
-                        .setInput(expectedOutput)
+                        .setInput(input)
+                        .setExpectedOutput(expectedOutput)
                         .build())
                 .setExecutionTime(judgeResult.executionTime())
                 .setMessage(judgeResult.message()==null?"":judgeResult.message())
