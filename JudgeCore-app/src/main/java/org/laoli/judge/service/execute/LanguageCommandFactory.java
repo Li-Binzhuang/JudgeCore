@@ -18,7 +18,8 @@ public class LanguageCommandFactory {
     // 沙盒执行器命令前缀，用于限制进程的资源使用和权限
     private static final String FIREJAIL_CMD = "firejail";
     private static final List<String> SANDBOX_COMMON_OPTIONS = Arrays.asList(
-            "--quiet", "--seccomp", "--net=none" , "--nogroups", "--nonewprivs", "--caps.drop=all"
+            "--quiet", "--seccomp", "--net=none" , "--nogroups",
+            "--nonewprivs", "--caps.drop=all"
     );
 
     // 存储每种语言对应的命令模板
@@ -63,8 +64,7 @@ public class LanguageCommandFactory {
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
         command.add("--private=" + workDir.toString());
-        //todo
-        command.addAll(Arrays.asList("java" ,"-XX:+PerfDisableSharedMem","-XX:+UseG1GC","-XX:MaxRAMPercentage=75.0" ,"-cp", workDir.toString(), "Main"));
+        command.addAll(Arrays.asList("--env=JAVA_TOOL_OPTIONS=\'-Djava.security.manager -Djava.security.policy==<<ALL PERMISSIONS DENIED>>\'","java","-XX:+PerfDisableSharedMem","-XX:+UseG1GC","-XX:MaxRAMPercentage=75.0" ,"-cp", workDir.toString(), "Main"));
         return command.toArray(new String[0]);
     }
 
@@ -74,7 +74,7 @@ public class LanguageCommandFactory {
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
         command.add("--private=" + workDir.toString());
-        command.addAll(Arrays.asList("python3","-OO", "-u", workDir.resolve("solution.py").toString()));
+        command.addAll(Arrays.asList("--read-only=/usr/lib","--env=PYTHONSAFE=1","python3","-OO", "-u", workDir.resolve("solution.py").toString()));
         return command.toArray(new String[0]);
     }
         // 构建 C 命令
