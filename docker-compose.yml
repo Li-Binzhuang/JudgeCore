@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  judge-system:
+    build: .
+    container_name: judge-core
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
