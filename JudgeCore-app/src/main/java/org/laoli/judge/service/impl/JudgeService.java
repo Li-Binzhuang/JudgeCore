@@ -98,6 +98,7 @@ public class JudgeService implements IJudgeService {
         testCases.forEach(testCase -> {
             futures.add(executorService.submit(() -> executor.execute(testCase, tempDir,command,timeLimit,memoryLimit)));
         });
+
         List<CaseResult> caseResults = new ArrayList<>();
         for (Future<CaseResult> future : futures) {
             try {
