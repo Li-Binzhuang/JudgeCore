@@ -34,7 +34,6 @@ public class LanguageCommandFactory {
         languageMap.put(Language.JAVA, this::buildJavaCommand);
         languageMap.put(Language.PYTHON, this::buildPythonCommand);
         languageMap.put(Language.PHP, this::buildPhpCommand);
-        languageMap.put(Language.KOTLIN, this::buildKotlinCommand);
     }
 
     /**
@@ -123,18 +122,6 @@ public class LanguageCommandFactory {
         command.addAll(SANDBOX_COMMON_OPTIONS);
         command.add("--private=" + workDir.toString());
         command.addAll(Arrays.asList("php", workDir.resolve("solution.php").toString()));
-        return command.toArray(new String[0]);
-    }
-
-    // 构建 Kotlin 命令
-    private String[] buildKotlinCommand(Path workDir) {
-        List<String> command = new ArrayList<>();
-        command.add(FIREJAIL_CMD);
-        command.addAll(SANDBOX_COMMON_OPTIONS);
-        command.add("--private=" + workDir.toString());
-        command.addAll(Arrays.asList("java",
-                "-XX:+PerfDisableSharedMem",
-                "-jar", workDir.resolve("Main.jar").toString()));
         return command.toArray(new String[0]);
     }
 }

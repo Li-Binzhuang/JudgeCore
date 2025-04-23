@@ -1,8 +1,5 @@
 package org.laoli.judge.service.compile.impl;
 
-
-
-
 import org.laoli.judge.model.aggregate.JudgeResult;
 import org.laoli.judge.service.compile.Compiler;
 import org.springframework.stereotype.Component;

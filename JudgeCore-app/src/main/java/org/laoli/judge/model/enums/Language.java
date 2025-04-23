@@ -18,7 +18,6 @@ public enum Language {
     C("C"),
     RUST("RUST"),
     GO("GO"),
-    PHP("PHP"),
-    KOTLIN("KOTLIN");
+    PHP("PHP");
     private final String Language;
 }
