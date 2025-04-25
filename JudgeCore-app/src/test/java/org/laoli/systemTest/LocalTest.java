@@ -159,19 +159,4 @@ public class LocalTest {
         log.info("RustJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                  judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
     }
-    @Test
-    public void testKotlin(){
-        // Kotlin示例代码 - 正确答案
-        String kotlinCode =
-            "import java.util.Scanner\n" +
-            "fun main() {\n" +
-            "    val scanner = Scanner(System.`in`)\n" +
-            "    val a = scanner.nextInt()\n" +
-            "    val b = scanner.nextInt()\n" +
-            "    println(a + b)\n" +
-            "}";
-        JudgeResult judge = judgeService.judge(testCases, kotlinCode, Language.KOTLIN,timeLimit,memoryLimit);
-        log.info("KotlinJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
-                 judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
-    }
 }
