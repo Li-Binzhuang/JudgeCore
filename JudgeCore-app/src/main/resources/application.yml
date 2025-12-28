@@ -2,4 +2,68 @@ spring:
   config:
     name: JudgeMachine-app
   profiles:
-    active: dev
+    active: prod
+  application:
+    name: judge-core
+  kafka:
+    # 如果不需要 Kafka，设置为 none 即可禁用
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:192.168.10.232:9092}
+    consumer:
+      group-id: ${KAFKA_GROUP_ID:judge-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # 连接失败时的配置
+      enable-auto-commit: false
+      properties:
+        # 降低重试频率，减少日志
+        reconnect.backoff.ms: 5000
+        retry.backoff.ms: 1000
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # 连接失败时的配置
+      properties:
+        reconnect.backoff.ms: 5000
+        retry.backoff.ms: 1000
+
+# 判题执行器配置
+judge:
+  executor:
+    # 是否优先使用 Firejail（如果可用），默认 true
+    prefer-firejail: true
+    # 是否强制使用跨平台执行器（忽略 Firejail），默认 false
+    force-cross-platform: false
+  mq:
+    kafka:
+      topic: ${KAFKA_TOPIC:judge-request}
+      group-id: ${KAFKA_GROUP_ID:judge-group}
+    rocketmq:
+      topic: ${ROCKETMQ_TOPIC:judge-request}
+      consumer-group: ${ROCKETMQ_CONSUMER_GROUP:judge-group}
+
+# Dubbo 配置
+dubbo:
+  application:
+    name: judge-core
+    qos-enable: false
+  # 注册中心配置（使用 Nacos）
+  registry:
+    address: ${DUBBO_REGISTRY_ADDRESS:nacos://192.168.10.232:8848}
+    # 如果需要禁用 Dubbo，设置为: none
+  protocol:
+    name: dubbo
+    port: ${DUBBO_PORT:20880}
+  consumer:
+    timeout: 30000
+    retries: 0
+  # 配置注册中心连接超时和重试
+  config-center:
+    timeout: 3000
+  registry-timeout: 3000
+
+# RocketMQ 配置
+rocketmq:
+  name-server: ${ROCKETMQ_NAME_SERVER:192.168.10.232:9876}
+  producer:
+    group: ${ROCKETMQ_PRODUCER_GROUP:judge-producer-group}

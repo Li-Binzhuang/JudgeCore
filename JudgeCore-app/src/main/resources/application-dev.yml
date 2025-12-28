@@ -1,4 +1,3 @@
-
 # 线程池配置
 thread:
   pool:
@@ -18,7 +17,59 @@ grpc:
 logging:
   level:
     root: info
+    org.apache.dubbo: warn  # 降低 Dubbo 日志级别
+    org.apache.zookeeper: warn  # 降低 Zookeeper 日志级别
+    org.apache.kafka: error  # 降低 Kafka 日志级别，避免连接失败时刷屏
+    org.springframework.kafka: warn  # 降低 Spring Kafka 日志级别
+    kafka: error  # 降低 Kafka 客户端日志级别
   config: classpath:logback-spring.xml
+
 spring:
   main:
-    web-application-type: none
+    web-application-type: servlet
+  # Kafka 配置（开发环境）
+  # 请将下面的 IP 地址替换为您另一台机器的 Kafka 服务器 IP 地址
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:192.168.10.232:9092}
+    consumer:
+      properties:
+        # 解决主机名解析问题：使用 IP 地址而不是主机名
+        # 如果 Kafka 服务器返回的主机名无法解析，客户端会使用 bootstrap-servers 的 IP
+        metadata.max.age.ms: 300000
+        reconnect.backoff.ms: 5000
+        retry.backoff.ms: 1000
+    producer:
+      properties:
+        # 解决主机名解析问题
+        metadata.max.age.ms: 300000
+        reconnect.backoff.ms: 5000
+        retry.backoff.ms: 1000
+
+# RocketMQ 配置（开发环境）
+rocketmq:
+  name-server: ${ROCKETMQ_NAME_SERVER:192.168.10.232:9876}
+  producer:
+    group: ${ROCKETMQ_PRODUCER_GROUP:judge-producer-group}
+    send-message-timeout: 10000  # 增加到 10 秒，适应跨网络连接
+    retry-times-when-send-failed: 2
+    retry-times-when-send-async-failed: 2
+    # 连接超时配置
+    connect-timeout: 10000  # 连接超时 10 秒
+    # 网络相关配置
+    max-message-size: 4194304  # 4MB
+    compress-message-body-threshold: 4096
+
+# 开发环境：禁用 Dubbo（如果不需要）
+# dubbo:
+#   registry:
+#     address: none
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized

@@ -2,13 +2,14 @@ package org.laoli.judge.service.execute;
 
 import lombok.extern.slf4j.Slf4j;
 import org.laoli.judge.model.enums.Language;
+import org.laoli.judge.service.execute.util.PlatformDetector;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.*;
 
 /**
- * @Description 语言指令工厂，用于生成每种语言的执行命令
+ * @Description 语言指令工厂，用于生成每种语言的执行命令（跨平台支持）
  * @Author laoli
  * @Date 2025/4/20 15:58
  */
@@ -22,31 +23,58 @@ public class LanguageCommandFactory {
             "--nonewprivs", "--caps.drop=all"
     );
 
-    // 存储每种语言对应的命令模板
-    private final Map<Language, CommandTemplate> languageMap;
+    // 存储每种语言对应的命令模板（带 Firejail）
+    private final Map<Language, CommandTemplate> languageMapWithFirejail;
+    // 存储每种语言对应的命令模板（不带 Firejail，跨平台）
+    private final Map<Language, CommandTemplate> languageMapPlain;
 
     public LanguageCommandFactory() {
-        languageMap = new HashMap<>();
-        languageMap.put(Language.CPP, this::buildCppCommand);
-        languageMap.put(Language.C, this::buildCCommand);
-        languageMap.put(Language.RUST, this::buildRustCommand);
-        languageMap.put(Language.GO, this::buildGoCommand);
-        languageMap.put(Language.JAVA, this::buildJavaCommand);
-        languageMap.put(Language.PYTHON, this::buildPythonCommand);
-        languageMap.put(Language.PHP, this::buildPhpCommand);
+        // 初始化带 Firejail 的命令映射
+        languageMapWithFirejail = new HashMap<>();
+        languageMapWithFirejail.put(Language.CPP, this::buildCppCommandWithFirejail);
+        languageMapWithFirejail.put(Language.C, this::buildCCommandWithFirejail);
+        languageMapWithFirejail.put(Language.RUST, this::buildRustCommandWithFirejail);
+        languageMapWithFirejail.put(Language.GO, this::buildGoCommandWithFirejail);
+        languageMapWithFirejail.put(Language.JAVA, this::buildJavaCommandWithFirejail);
+        languageMapWithFirejail.put(Language.PYTHON, this::buildPythonCommandWithFirejail);
+        languageMapWithFirejail.put(Language.PHP, this::buildPhpCommandWithFirejail);
+        
+        // 初始化不带 Firejail 的命令映射（跨平台）
+        languageMapPlain = new HashMap<>();
+        languageMapPlain.put(Language.CPP, this::buildCppCommandPlain);
+        languageMapPlain.put(Language.C, this::buildCCommandPlain);
+        languageMapPlain.put(Language.RUST, this::buildRustCommandPlain);
+        languageMapPlain.put(Language.GO, this::buildGoCommandPlain);
+        languageMapPlain.put(Language.JAVA, this::buildJavaCommandPlain);
+        languageMapPlain.put(Language.PYTHON, this::buildPythonCommandPlain);
+        languageMapPlain.put(Language.PHP, this::buildPhpCommandPlain);
     }
 
     /**
-     * 根据语言和工作目录生成命令
+     * 根据语言和工作目录生成命令（自动选择是否使用 Firejail）
      *
      * @param language 语言名称（如 JAVA、PYTHON 等）
      * @param workDir  工作目录路径
      * @return 生成的命令数组
      */
-    public String[] getCommand( Language language, Path workDir) {
-        CommandTemplate commandBuilder = languageMap.get(language);
+    public String[] getCommand(Language language, Path workDir) {
+        return getCommand(language, workDir, PlatformDetector.isFirejailAvailable());
+    }
+    
+    /**
+     * 根据语言和工作目录生成命令（指定是否使用 Firejail）
+     *
+     * @param language 语言名称
+     * @param workDir  工作目录路径
+     * @param useFirejail 是否使用 Firejail
+     * @return 生成的命令数组
+     */
+    public String[] getCommand(Language language, Path workDir, boolean useFirejail) {
+        Map<Language, CommandTemplate> commandMap = useFirejail ? languageMapWithFirejail : languageMapPlain;
+        CommandTemplate commandBuilder = commandMap.get(language);
         if (commandBuilder == null) {
-            log.info("Unsupported language: {}", language);
+            log.warn("Unsupported language: {}", language);
+            return new String[0];
         }
         return commandBuilder.build(workDir);
     }
@@ -57,27 +85,30 @@ public class LanguageCommandFactory {
         String[] build(Path workDir);
     }
 
-    // 构建 Java 命令
-    private String[] buildJavaCommand(Path workDir) {
+    // ========== 带 Firejail 的命令构建方法 ==========
+    
+    private String[] buildJavaCommandWithFirejail(Path workDir) {
         List<String> command = new ArrayList<>();
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
         command.add("--private=" + workDir.toString());
-        command.addAll(Arrays.asList("--env=JAVA_TOOL_OPTIONS=\'-Djava.security.manager -Djava.security.policy==<<ALL PERMISSIONS DENIED>>\'","java","-XX:+PerfDisableSharedMem","-XX:+UseG1GC","-XX:MaxRAMPercentage=75.0" ,"-cp", workDir.toString(), "Main"));
+        command.addAll(Arrays.asList("--env=JAVA_TOOL_OPTIONS=\'-Djava.security.manager -Djava.security.policy==<<ALL PERMISSIONS DENIED>>\'",
+                "java", "-XX:+PerfDisableSharedMem", "-XX:+UseG1GC", "-XX:MaxRAMPercentage=75.0",
+                "-cp", workDir.toString(), "Main"));
         return command.toArray(new String[0]);
     }
 
-    // 构建 Python 命令
-    private String[] buildPythonCommand(Path workDir) {
+    private String[] buildPythonCommandWithFirejail(Path workDir) {
         List<String> command = new ArrayList<>();
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
         command.add("--private=" + workDir.toString());
-        command.addAll(Arrays.asList("--read-only=/usr/lib","--env=PYTHONSAFE=1","python3","-OO", "-u", workDir.resolve("solution.py").toString()));
+        command.addAll(Arrays.asList("--read-only=/usr/lib", "--env=PYTHONSAFE=1",
+                "python3", "-OO", "-u", workDir.resolve("solution.py").toString()));
         return command.toArray(new String[0]);
     }
-        // 构建 C 命令
-    private String[] buildCCommand(Path workDir) {
+
+    private String[] buildCCommandWithFirejail(Path workDir) {
         List<String> command = new ArrayList<>();
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
@@ -85,8 +116,8 @@ public class LanguageCommandFactory {
         command.add(workDir.resolve("c_solution").toString());
         return command.toArray(new String[0]);
     }
-        // 构建 C++ 命令
-    private String[] buildCppCommand(Path workDir) {
+
+    private String[] buildCppCommandWithFirejail(Path workDir) {
         List<String> command = new ArrayList<>();
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
@@ -94,8 +125,8 @@ public class LanguageCommandFactory {
         command.add(workDir.resolve("cpp_solution").toString());
         return command.toArray(new String[0]);
     }
-    // 构建 Rust 命令
-    private String[] buildRustCommand(Path workDir) {
+
+    private String[] buildRustCommandWithFirejail(Path workDir) {
         List<String> command = new ArrayList<>();
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
@@ -104,9 +135,7 @@ public class LanguageCommandFactory {
         return command.toArray(new String[0]);
     }
 
-
-    // 构建 Go 命令
-    private String[] buildGoCommand(Path workDir) {
+    private String[] buildGoCommandWithFirejail(Path workDir) {
         List<String> command = new ArrayList<>();
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
@@ -115,13 +144,43 @@ public class LanguageCommandFactory {
         return command.toArray(new String[0]);
     }
 
-    // 构建 PHP 命令
-    private String[] buildPhpCommand(Path workDir) {
+    private String[] buildPhpCommandWithFirejail(Path workDir) {
         List<String> command = new ArrayList<>();
         command.add(FIREJAIL_CMD);
         command.addAll(SANDBOX_COMMON_OPTIONS);
         command.add("--private=" + workDir.toString());
         command.addAll(Arrays.asList("php", workDir.resolve("solution.php").toString()));
         return command.toArray(new String[0]);
+    }
+
+    // ========== 不带 Firejail 的跨平台命令构建方法 ==========
+    
+    private String[] buildJavaCommandPlain(Path workDir) {
+        return new String[]{"java", "-XX:+PerfDisableSharedMem", "-XX:+UseG1GC",
+                "-XX:MaxRAMPercentage=75.0", "-cp", workDir.toString(), "Main"};
+    }
+
+    private String[] buildPythonCommandPlain(Path workDir) {
+        return new String[]{"python3", "-OO", "-u", workDir.resolve("solution.py").toString()};
+    }
+
+    private String[] buildCCommandPlain(Path workDir) {
+        return new String[]{workDir.resolve("c_solution").toString()};
+    }
+
+    private String[] buildCppCommandPlain(Path workDir) {
+        return new String[]{workDir.resolve("cpp_solution").toString()};
+    }
+
+    private String[] buildRustCommandPlain(Path workDir) {
+        return new String[]{workDir.resolve("rust_solution").toString()};
+    }
+
+    private String[] buildGoCommandPlain(Path workDir) {
+        return new String[]{workDir.resolve("go_solution").toString()};
+    }
+
+    private String[] buildPhpCommandPlain(Path workDir) {
+        return new String[]{"php", workDir.resolve("solution.php").toString()};
     }
 }

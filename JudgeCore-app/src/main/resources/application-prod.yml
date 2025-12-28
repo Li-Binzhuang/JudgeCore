@@ -6,36 +6,87 @@ thread:
   pool:
     executor:
       config:
-        core-pool-size: 20
-        max-pool-size: 50
+        core-pool-size: 50
+        max-pool-size: 100
         keep-alive-time: 5000
-        block-queue-size: 5000
+        block-queue-size: 10000
         policy: CallerRunsPolicy
 
-# 数据库配置
-#spring:
-#  datasource:
-#    username: root
-#    password: 123456
-#    url: jdbc:mysql://127.0.0.1:3306/xfg_frame_archetype?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#  hikari:
-#    pool-name: Retail_HikariCP
-#    minimum-idle: 15 #最小空闲连接数量
-#    idle-timeout: 180000 #空闲连接存活最大时间，默认600000（10分钟）
-#    maximum-pool-size: 25 #连接池最大连接数，默认是10
-#    auto-commit: true  #此属性控制从池返回的连接的默认自动提交行为,默认值：true
-#    max-lifetime: 1800000 #此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
-#    connection-timeout: 30000 #数据库连接超时时间,默认30秒，即30000
-#    connection-test-query: SELECT 1
-#  type: com.zaxxer.hikari.HikariDataSource
-
-#mybatis:
-#  mapper-locations: classpath:/mybatis/mapper/*.xml
-#  config-location:  classpath:/mybatis/config/mybatis-config.xml
+grpc:
+  server:
+    port: 9000
 
 # 日志
 logging:
   level:
     root: info
+    org.laoli: info
+    org.apache.dubbo: info
+    org.apache.kafka: info
+    org.apache.rocketmq: info
   config: classpath:logback-spring.xml
+
+spring:
+  main:
+    web-application-type: servlet
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:192.168.10.232:9092}
+    consumer:
+      group-id: ${KAFKA_GROUP_ID:judge-group-prod}
+    producer:
+      retries: 3
+      batch-size: 16384
+      buffer-memory: 33554432
+
+# Dubbo 生产环境配置
+dubbo:
+  registry:
+    address: ${DUBBO_REGISTRY_ADDRESS:nacos://192.168.10.232:8848}
+    # Nacos 配置
+    parameters:
+      namespace: ${NACOS_NAMESPACE:}
+      username: ${NACOS_USERNAME:nacos}
+      password: ${NACOS_PASSWORD:nacos}
+  protocol:
+    port: ${DUBBO_PORT:20880}
+  consumer:
+    timeout: 30000
+    retries: 2
+  provider:
+    timeout: 30000
+    retries: 0
+
+# RocketMQ 生产环境配置
+rocketmq:
+  name-server: ${ROCKETMQ_NAME_SERVER:192.168.10.232:9876}
+  producer:
+    group: ${ROCKETMQ_PRODUCER_GROUP:judge-producer-group-prod}
+    send-message-timeout: 3000
+    retry-times-when-send-failed: 2
+    retry-times-when-send-async-failed: 2
+    max-message-size: 4194304
+    compress-message-body-threshold: 4096
+
+# 判题执行器配置
+judge:
+  executor:
+    prefer-firejail: true
+    force-cross-platform: false
+  mq:
+    kafka:
+      topic: ${KAFKA_TOPIC:judge-request-prod}
+      group-id: ${KAFKA_GROUP_ID:judge-group-prod}
+    rocketmq:
+      topic: ${ROCKETMQ_TOPIC:judge-request-prod}
+      consumer-group: ${ROCKETMQ_CONSUMER_GROUP:judge-group-prod}
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
