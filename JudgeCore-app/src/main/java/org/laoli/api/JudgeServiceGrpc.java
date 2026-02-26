@@ -5,7 +5,7 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
 /**
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.72.0)",
+    value = "by gRPC proto compiler (version 1.60.1)",
     comments = "Source: JudgeService.proto")
 @io.grpc.stub.annotations.GrpcGenerated
 public final class JudgeServiceGrpc {
@@ -58,21 +58,6 @@ public final class JudgeServiceGrpc {
         }
       };
     return JudgeServiceStub.newStub(factory, channel);
-  }
-
-  /**
-   * Creates a new blocking-style stub that supports all types of calls on the service
-   */
-  public static JudgeServiceBlockingV2Stub newBlockingV2Stub(
-      io.grpc.Channel channel) {
-    io.grpc.stub.AbstractStub.StubFactory<JudgeServiceBlockingV2Stub> factory =
-      new io.grpc.stub.AbstractStub.StubFactory<JudgeServiceBlockingV2Stub>() {
-        @java.lang.Override
-        public JudgeServiceBlockingV2Stub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
-          return new JudgeServiceBlockingV2Stub(channel, callOptions);
-        }
-      };
-    return JudgeServiceBlockingV2Stub.newStub(factory, channel);
   }
 
   /**
@@ -155,30 +140,6 @@ public final class JudgeServiceGrpc {
 
   /**
    * A stub to allow clients to do synchronous rpc calls to service JudgeService.
-   */
-  public static final class JudgeServiceBlockingV2Stub
-      extends io.grpc.stub.AbstractBlockingStub<JudgeServiceBlockingV2Stub> {
-    private JudgeServiceBlockingV2Stub(
-        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
-      super(channel, callOptions);
-    }
-
-    @java.lang.Override
-    protected JudgeServiceBlockingV2Stub build(
-        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
-      return new JudgeServiceBlockingV2Stub(channel, callOptions);
-    }
-
-    /**
-     */
-    public org.laoli.api.JudgeCore.Response judge(org.laoli.api.JudgeCore.Request request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getJudgeMethod(), getCallOptions(), request);
-    }
-  }
-
-  /**
-   * A stub to allow clients to do limited synchronous rpc calls to service JudgeService.
    */
   public static final class JudgeServiceBlockingStub
       extends io.grpc.stub.AbstractBlockingStub<JudgeServiceBlockingStub> {

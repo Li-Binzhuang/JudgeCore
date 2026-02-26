@@ -61,6 +61,10 @@
                 <artifactId>grpc-server-spring-boot-starter</artifactId>
                 <version>3.0.0.RELEASE</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+            </dependency>
     </dependencies>
     <build>
         <finalName>JudgeCore-app</finalName>
@@ -116,9 +120,9 @@
               <artifactId>protobuf-maven-plugin</artifactId>
               <version>0.6.1</version>
               <configuration>
-                <protocArtifact>com.google.protobuf:protoc:3.25.5:exe:${os.detected.classifier}</protocArtifact>
+                <protocArtifact>com.google.protobuf:protoc:3.25.1:exe:${os.detected.classifier}</protocArtifact>
                 <pluginId>grpc-java</pluginId>
-                <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.72.0:exe:${os.detected.classifier}</pluginArtifact>
+                <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.60.1:exe:${os.detected.classifier}</pluginArtifact>
                 <outputDirectory>${basedir}/src/main/java</outputDirectory>
                   <clearOutputDirectory>false</clearOutputDirectory>
               </configuration>
