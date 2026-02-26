@@ -3,25 +3,26 @@ package org.laoli.judge.service.execute.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.laoli.judge.model.entity.CaseResult;
 import org.laoli.judge.model.entity.TestCase;
-import org.laoli.judge.service.execute.CodeExecutor;
 import org.laoli.judge.model.enums.SimpleResult;
+import org.laoli.judge.service.comparator.ComparatorFactory;
+import org.laoli.judge.service.comparator.OutputComparator;
+import org.laoli.judge.service.execute.CodeExecutor;
+import org.laoli.judge.util.ProcessUtils;
 import org.springframework.stereotype.Component;
-import java.io.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @Description 沙盒执行器实现
- * @Author laoli
- * @Date 2025/4/20 12:31
- */
 @Slf4j
 @Component
 public class FirejailExecutor implements CodeExecutor {
+
+    private final OutputComparator comparator = ComparatorFactory.getComparator("exact");
+
     @Override
     public CaseResult execute(TestCase testCase, Path workDir, String[] command, long timeLimit, long memoryLimit) {
         ProcessBuilder pb = new ProcessBuilder(command);
@@ -29,44 +30,35 @@ public class FirejailExecutor implements CodeExecutor {
         Process process = null;
 
         try {
-            long memoryUsed = 0;
-            // 启动进程并处理输入
             process = pb.start();
-            try (OutputStream stdin = process.getOutputStream()) {
-                stdin.write(testCase.input().getBytes(StandardCharsets.UTF_8));
-                stdin.flush();
-                memoryUsed = estimateMemoryUsage(process.pid());
-            }
+            writeInput(process, testCase.input());
 
-            // 异步读取错误流（防止阻塞）
-            StringBuilder errorOutput = new StringBuilder();
-            Thread errorReader = getErrorReader(process, errorOutput);
+            long memoryUsed = ProcessUtils.estimateMemoryUsage(process.pid());
+
+            Thread errorReader = startErrorReader(process);
             errorReader.start();
 
-            // 监控执行情况
             long startTime = System.currentTimeMillis();
             boolean completed = process.waitFor(timeLimit, TimeUnit.MILLISECONDS);
             long executionTime = System.currentTimeMillis() - startTime;
 
-            // 处理未完成情况
             if (!completed) {
                 process.destroyForcibly();
-                return buildTimeoutResult(testCase, errorOutput.toString(), memoryUsed, executionTime);
+                return buildResult(SimpleResult.TIME_LIMIT_EXCEEDED, null, memoryUsed, executionTime, testCase);
             }
 
-            // 处理已完成情况
             int exitCode = process.exitValue();
             if (exitCode != 0) {
-                return buildErrorResult(testCase, errorOutput.toString(), memoryUsed, executionTime);
+                String errorOutput = getErrorOutput(errorReader);
+                return buildResult(SimpleResult.RUNTIME_ERROR, errorOutput, memoryUsed, executionTime, testCase);
             }
 
-            // 读取标准输出
-            String actualOutput = readInputStream(process.getInputStream());
-            return evaluateTestCase(testCase, memoryUsed, executionTime, actualOutput, timeLimit, memoryLimit);
+            String actualOutput = ProcessUtils.readInputStream(process.getInputStream());
+            return evaluateResult(testCase, memoryUsed, executionTime, actualOutput, timeLimit, memoryLimit);
 
         } catch (Exception e) {
-            log.error(" 执行失败: {}", e.getMessage());
-            return buildExceptionResult(testCase, e);
+            log.error("执行失败: {}", e.getMessage());
+            return buildResult(SimpleResult.RUNTIME_ERROR, e.getMessage(), 0, 0, testCase);
         } finally {
             if (process != null) {
                 process.destroy();
@@ -74,7 +66,15 @@ public class FirejailExecutor implements CodeExecutor {
         }
     }
 
-    private static Thread getErrorReader(Process process, StringBuilder errorOutput) {
+    private void writeInput(Process process, String input) throws IOException {
+        try (OutputStream stdin = process.getOutputStream()) {
+            stdin.write(input.getBytes(StandardCharsets.UTF_8));
+            stdin.flush();
+        }
+    }
+
+    private Thread startErrorReader(Process process) {
+        StringBuilder errorOutput = new StringBuilder();
         return new Thread(() -> {
             try (InputStream stderr = process.getErrorStream()) {
                 byte[] buffer = new byte[1024];
@@ -87,126 +87,53 @@ public class FirejailExecutor implements CodeExecutor {
         });
     }
 
-    // 辅助方法 - 读取输入流
-    private String readInputStream(InputStream inputStream) throws IOException {
-        StringBuilder builder = new StringBuilder();
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            builder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
-        }
-        return builder.toString();
+    private String getErrorOutput(Thread errorReader) throws InterruptedException {
+        errorReader.join(100);
+        return "";
     }
 
-    // 辅助方法 - 构建超时结果
-    private CaseResult buildTimeoutResult(TestCase testCase, String error, long memory, long time) {
+    private CaseResult buildResult(SimpleResult status, String message, long memory, long time, TestCase testCase) {
         return CaseResult.builder()
-                .status(SimpleResult.TIME_LIMIT_EXCEEDED)
-                .message(error)
-                .input(testCase.input())
-                .expectedOutput(testCase.expectedOutput())
+                .status(status)
+                .message(message)
                 .memoryUsed(memory)
                 .executionTime(time)
-                .build();
-    }
-
-    // 辅助方法 - 构建错误结果
-    private CaseResult buildErrorResult(TestCase testCase, String error, long memory, long time) {
-        return CaseResult.builder()
-                .status(SimpleResult.RUNTIME_ERROR)
-                .message(error)
-                .input(testCase.input())
-                .expectedOutput(testCase.expectedOutput())
-                .memoryUsed(memory)
-                .executionTime(time)
-                .build();
-    }
-
-    // 辅助方法 - 构建异常结果
-    private CaseResult buildExceptionResult(TestCase testCase, Exception e) {
-        return CaseResult.builder()
-                .status(SimpleResult.RUNTIME_ERROR)
-                .message(e.getMessage())
                 .input(testCase.input())
                 .expectedOutput(testCase.expectedOutput())
                 .build();
     }
 
-    private CaseResult evaluateTestCase(TestCase testCase, long memoryUsed, long executionTime, String actualOutput,
+    private CaseResult evaluateResult(TestCase testCase, long memoryUsed, long executionTime, String actualOutput,
             long timeLimit, long memoryLimit) {
-        // 检查内存限制
         if (memoryUsed > memoryLimit) {
             return CaseResult.builder()
                     .status(SimpleResult.MEMORY_LIMIT_EXCEEDED)
                     .executionTime(executionTime)
                     .memoryUsed(memoryUsed)
                     .expectedOutput(testCase.expectedOutput())
-                    .actualOutput(actualOutput)
+                    .actualOutput(ProcessUtils.normalizeOutput(actualOutput))
                     .input(testCase.input())
                     .build();
         }
 
-        // 检查时间限制
         if (executionTime > timeLimit) {
             return CaseResult.builder()
                     .status(SimpleResult.TIME_LIMIT_EXCEEDED)
                     .executionTime(executionTime)
-                    .actualOutput(actualOutput)
+                    .actualOutput(ProcessUtils.normalizeOutput(actualOutput))
                     .expectedOutput(testCase.expectedOutput())
                     .input(testCase.input())
                     .build();
         }
 
-        // 规范化输出（去除末尾空白字符和多余的换行符）
-        String normalizedActual = normalizeOutput(actualOutput);
-        String normalizedExpected = normalizeOutput(testCase.expectedOutput());
+        CaseResult result = CaseResult.builder()
+                .executionTime(executionTime)
+                .memoryUsed(memoryUsed)
+                .actualOutput(actualOutput)
+                .expectedOutput(testCase.expectedOutput())
+                .input(testCase.input())
+                .build();
 
-        // 比较输出
-        if (normalizedActual.equals(normalizedExpected)) {
-            // 输出比较通过
-            return CaseResult.builder()
-                    .status(SimpleResult.ACCEPTED)
-                    .executionTime(executionTime)
-                    .memoryUsed(memoryUsed)
-                    .build();
-        } else {
-            // 输出比较失败
-            return CaseResult.builder()
-                    .status(SimpleResult.WRONG_ANSWER)
-                    .executionTime(executionTime)
-                    .memoryUsed(memoryUsed)
-                    .actualOutput(actualOutput)
-                    .expectedOutput(testCase.expectedOutput())
-                    .input(testCase.input())
-                    .build();
-        }
-    }
-
-    private String normalizeOutput(String output) {
-        // 移除末尾空白字符
-        String result = output.trim();
-        // 规范化不同操作系统的换行符
-        result = result.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
-        return result;
-    }
-
-    private long estimateMemoryUsage(Long pid) {
-        long residentPages = 0;
-        try {
-            Path statmPath = Paths.get("/proc", String.valueOf(pid), "statm");
-            for (int i = 0; i < 20; i++) {
-                List<String> lines = Files.readAllLines(statmPath);
-                if (lines.isEmpty()) {
-                    return residentPages << 2;
-                }
-                String[] stats = lines.get(0).split("\\s+");
-                residentPages = Math.max(Long.parseLong(stats[1]), residentPages);
-            }
-            return residentPages << 2;
-        } catch (Exception e) {
-            log.debug("Cannot read memory usage for PID {} (process may be in sandbox or terminated): {}", pid,
-                    e.getMessage());
-            return 0;
-        }
+        return comparator.compare(result);
     }
 }

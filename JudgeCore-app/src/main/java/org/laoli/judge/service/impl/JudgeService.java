@@ -1,6 +1,6 @@
 package org.laoli.judge.service.impl;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.laoli.judge.model.aggregate.JudgeResult;
 import org.laoli.judge.model.entity.CaseResult;
@@ -8,13 +8,11 @@ import org.laoli.judge.model.entity.TestCase;
 import org.laoli.judge.model.enums.Language;
 import org.laoli.judge.model.enums.SimpleResult;
 import org.laoli.judge.service.IJudgeService;
-import org.laoli.judge.service.comparator.OutputComparator;
 import org.laoli.judge.service.compile.Compiler;
 import org.laoli.judge.service.compile.CompilerFactory;
 import org.laoli.judge.service.execute.CodeExecutor;
 import org.laoli.judge.service.execute.LanguageCommandFactory;
 import org.laoli.judge.service.monitor.PerformanceMonitor;
-import org.laoli.judge.service.summarize.ISummarize;
 import org.laoli.judge.service.validation.InputValidator;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +22,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 /**
  * 判题服务实现类
@@ -47,38 +39,25 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class JudgeService implements IJudgeService {
 
     /** 线程池执行器，用于并发执行测试用例 */
-    @Resource
     private ThreadPoolExecutor executorService;
 
     /** 代码执行器 */
-    @Resource
     private CodeExecutor executor;
 
     /** 语言命令工厂 */
-    @Resource
     private LanguageCommandFactory languageCommandFactory;
 
     /** 编译器工厂 */
-    @Resource
     private CompilerFactory compilerFactory;
 
-    /** 结果汇总器 */
-    @Resource
-    private ISummarize summarize;
-
     /** 输入验证器 */
-    @Resource
     private InputValidator inputValidator;
 
-    /** 输出比较器 */
-    @Resource
-    private OutputComparator outputComparator;
-
     /** 性能监控器 */
-    @Resource
     private PerformanceMonitor performanceMonitor;
 
     /** 临时目录前缀 */
