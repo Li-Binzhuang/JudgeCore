@@ -43,22 +43,22 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class JudgeService implements IJudgeService {
 
     /** 线程池执行器，用于并发执行测试用例 */
-    private ThreadPoolExecutor executorService;
+    private final ThreadPoolExecutor executorService;
 
     /** 代码执行器 */
-    private CodeExecutor executor;
+    private final CodeExecutor executor;
 
     /** 语言命令工厂 */
-    private LanguageCommandFactory languageCommandFactory;
+    private final LanguageCommandFactory languageCommandFactory;
 
     /** 编译器工厂 */
-    private CompilerFactory compilerFactory;
+    private final CompilerFactory compilerFactory;
 
     /** 输入验证器 */
-    private InputValidator inputValidator;
+    private final InputValidator inputValidator;
 
     /** 性能监控器 */
-    private PerformanceMonitor performanceMonitor;
+    private final PerformanceMonitor performanceMonitor;
 
     /** 临时目录前缀 */
     private static final String JUDGE_TEMP_PREFIX = "judge_";
