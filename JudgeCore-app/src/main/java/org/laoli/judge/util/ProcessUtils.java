@@ -26,9 +26,6 @@ public class ProcessUtils {
     private static final Pattern LINUX_RSS_PATTERN = Pattern.compile("RssAnon:\\s+(\\d+)\\s+kB");
     // Linux /proc/[pid]/statm 第二列是 RSS (页), 假设页大小为 4KB
     private static final Pattern LINUX_STATM_PATTERN = Pattern.compile("(\\d+)\\s+(\\d+)");
-    // macOS ps 输出通常是 KB
-    private static final Pattern MAC_PS_PATTERN = Pattern.compile("(\\d+)\\s+(\\d+)");
-
     private ProcessUtils() {
     }
 

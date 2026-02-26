@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
+
 
 import static org.laoli.judge.service.compile.BuildFile.preCompile;
 
