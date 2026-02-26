@@ -28,7 +28,7 @@ public class JavaCompiler implements Compiler {
         Files.write(sourceFile, sourceCode.getBytes());
 
         // 编译Java代码
-        ProcessBuilder pb = new ProcessBuilder("javac", "-J-XX:+UseG1GC", sourceFile.toString());
+        ProcessBuilder pb = new ProcessBuilder("javac", sourceFile.toString());
         return preCompile(workDir, pb);
     }
 }

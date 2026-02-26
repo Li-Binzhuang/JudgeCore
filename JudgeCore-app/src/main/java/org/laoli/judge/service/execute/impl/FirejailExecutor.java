@@ -1,6 +1,5 @@
 package org.laoli.judge.service.execute.impl;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.laoli.judge.model.entity.CaseResult;
 import org.laoli.judge.model.entity.TestCase;
@@ -30,10 +29,10 @@ public class FirejailExecutor implements CodeExecutor {
         Process process = null;
 
         try {
-            double memoryUsed = 0 ;
+            double memoryUsed = 0;
             // 启动进程并处理输入
             process = pb.start();
-            try (OutputStream stdin = process.getOutputStream())  {
+            try (OutputStream stdin = process.getOutputStream()) {
                 stdin.write(testCase.input().getBytes(StandardCharsets.UTF_8));
                 stdin.flush();
                 memoryUsed = estimateMemoryUsage(process.pid());
@@ -46,20 +45,19 @@ public class FirejailExecutor implements CodeExecutor {
 
             // 监控执行情况
             long startTime = System.currentTimeMillis();
-            boolean completed = process.waitFor(timeLimit,  TimeUnit.MILLISECONDS);
-            long executionTime = System.currentTimeMillis()  - startTime;
-
+            boolean completed = process.waitFor(timeLimit, TimeUnit.MILLISECONDS);
+            long executionTime = System.currentTimeMillis() - startTime;
 
             // 处理未完成情况
             if (!completed) {
                 process.destroyForcibly();
-                return buildTimeoutResult(testCase, errorOutput.toString(),  memoryUsed, executionTime);
+                return buildTimeoutResult(testCase, errorOutput.toString(), memoryUsed, executionTime);
             }
 
             // 处理已完成情况
             int exitCode = process.exitValue();
             if (exitCode != 0) {
-                return buildErrorResult(testCase, errorOutput.toString(),  memoryUsed, executionTime);
+                return buildErrorResult(testCase, errorOutput.toString(), memoryUsed, executionTime);
             }
 
             // 读取标准输出
@@ -78,13 +76,14 @@ public class FirejailExecutor implements CodeExecutor {
 
     private static Thread getErrorReader(Process process, StringBuilder errorOutput) {
         return new Thread(() -> {
-            try (InputStream stderr = process.getErrorStream())  {
+            try (InputStream stderr = process.getErrorStream()) {
                 byte[] buffer = new byte[1024];
                 int bytesRead;
-                while ((bytesRead = stderr.read(buffer))  != -1) {
-                    errorOutput.append(new  String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
+                while ((bytesRead = stderr.read(buffer)) != -1) {
+                    errorOutput.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
                 }
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
         });
     }
 
@@ -93,8 +92,8 @@ public class FirejailExecutor implements CodeExecutor {
         StringBuilder builder = new StringBuilder();
         byte[] buffer = new byte[1024];
         int bytesRead;
-        while ((bytesRead = inputStream.read(buffer))  != -1) {
-            builder.append(new  String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            builder.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
         }
         return builder.toString();
     }
@@ -133,7 +132,8 @@ public class FirejailExecutor implements CodeExecutor {
                 .build();
     }
 
-    private CaseResult evaluateTestCase(TestCase testCase, double memoryUsed,long executionTime, String actualOutput,long timeLimit,double memoryLimit) {
+    private CaseResult evaluateTestCase(TestCase testCase, double memoryUsed, long executionTime, String actualOutput,
+            long timeLimit, double memoryLimit) {
         // 检查内存限制
         if (memoryUsed > memoryLimit) {
             return CaseResult.builder()
@@ -194,18 +194,19 @@ public class FirejailExecutor implements CodeExecutor {
         long residentPages = 0;
         try {
             Path statmPath = Paths.get("/proc", String.valueOf(pid), "statm");
-            for(int i=0;i<20;i++){
+            for (int i = 0; i < 20; i++) {
                 List<String> lines = Files.readAllLines(statmPath);
                 if (lines.isEmpty()) {
                     return residentPages << 2;
                 }
                 String[] stats = lines.get(0).split("\\s+");
-                residentPages = Math.max(Long.parseLong(stats[1]),residentPages); // 第二列为常驻集大小（单位：页）
+                residentPages = Math.max(Long.parseLong(stats[1]), residentPages);
             }
             return residentPages << 2;
-        } catch (IOException e) {
-            log.info("Error reading memory usage: " + e.getMessage());
-            return residentPages << 2;
+        } catch (Exception e) {
+            log.debug("Cannot read memory usage for PID {} (process may be in sandbox or terminated): {}", pid,
+                    e.getMessage());
+            return 0;
         }
     }
 }

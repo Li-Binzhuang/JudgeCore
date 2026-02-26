@@ -3,8 +3,15 @@ server:
 
 # 沙箱配置
 sandbox:
-  enabled: true
+  enabled: false
   command: firejail
+  common-options:
+    quiet: true
+    seccomp: true
+    net-none: true
+    no-groups: true
+    no-new-privs: true
+    caps-drop: all
 
 # 线程池配置
 thread:
