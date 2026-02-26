@@ -23,13 +23,13 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class FirejailExecutor implements CodeExecutor {
     @Override
-    public CaseResult execute(TestCase testCase, Path workDir, String[] command, long timeLimit, double memoryLimit) {
+    public CaseResult execute(TestCase testCase, Path workDir, String[] command, long timeLimit, long memoryLimit) {
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(workDir.toFile());
         Process process = null;
 
         try {
-            double memoryUsed = 0;
+            long memoryUsed = 0;
             // 启动进程并处理输入
             process = pb.start();
             try (OutputStream stdin = process.getOutputStream()) {
@@ -99,7 +99,7 @@ public class FirejailExecutor implements CodeExecutor {
     }
 
     // 辅助方法 - 构建超时结果
-    private CaseResult buildTimeoutResult(TestCase testCase, String error, double memory, long time) {
+    private CaseResult buildTimeoutResult(TestCase testCase, String error, long memory, long time) {
         return CaseResult.builder()
                 .status(SimpleResult.TIME_LIMIT_EXCEEDED)
                 .message(error)
@@ -111,7 +111,7 @@ public class FirejailExecutor implements CodeExecutor {
     }
 
     // 辅助方法 - 构建错误结果
-    private CaseResult buildErrorResult(TestCase testCase, String error, double memory, long time) {
+    private CaseResult buildErrorResult(TestCase testCase, String error, long memory, long time) {
         return CaseResult.builder()
                 .status(SimpleResult.RUNTIME_ERROR)
                 .message(error)
@@ -132,8 +132,8 @@ public class FirejailExecutor implements CodeExecutor {
                 .build();
     }
 
-    private CaseResult evaluateTestCase(TestCase testCase, double memoryUsed, long executionTime, String actualOutput,
-            long timeLimit, double memoryLimit) {
+    private CaseResult evaluateTestCase(TestCase testCase, long memoryUsed, long executionTime, String actualOutput,
+            long timeLimit, long memoryLimit) {
         // 检查内存限制
         if (memoryUsed > memoryLimit) {
             return CaseResult.builder()
@@ -190,7 +190,7 @@ public class FirejailExecutor implements CodeExecutor {
         return result;
     }
 
-    private double estimateMemoryUsage(Long pid) {
+    private long estimateMemoryUsage(Long pid) {
         long residentPages = 0;
         try {
             Path statmPath = Paths.get("/proc", String.valueOf(pid), "statm");

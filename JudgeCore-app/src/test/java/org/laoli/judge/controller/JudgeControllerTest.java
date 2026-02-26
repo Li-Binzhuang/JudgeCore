@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.laoli.judge.model.aggregate.JudgeResult;
 import org.laoli.judge.model.dto.JudgeRequest;
 import org.laoli.judge.model.entity.CaseResult;
-import org.laoli.judge.model.entity.TestCase;
 import org.laoli.judge.model.enums.Language;
 import org.laoli.judge.model.enums.SimpleResult;
 import org.laoli.judge.service.IJudgeService;
@@ -15,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,7 +40,7 @@ class JudgeControllerTest {
         request.setCode("print('Hello')");
         request.setLanguage("PYTHON");
         request.setTimeLimit(1000L);
-        request.setMemoryLimit(4194304.0);
+        request.setMemoryLimit(4194304L);
 
         JudgeRequest.TestCaseDto testCaseDto = new JudgeRequest.TestCaseDto();
         testCaseDto.setInput("test");
@@ -60,11 +58,11 @@ class JudgeControllerTest {
                 .status(SimpleResult.ACCEPTED)
                 .message("Accepted")
                 .executionTime(100L)
-                .memoryUsed(1024.0)
+                .memoryUsed(1024L)
                 .caseResults(caseResult)
                 .build();
 
-        when(judgeService.judge(anyList(), anyString(), eq(Language.PYTHON), anyLong(), anyDouble()))
+        when(judgeService.judge(anyList(), anyString(), eq(Language.PYTHON), anyLong(), anyLong()))
                 .thenReturn(judgeResult);
 
         ResponseEntity<org.laoli.judge.model.dto.JudgeResponse> response = judgeController.judge(request);
@@ -80,7 +78,7 @@ class JudgeControllerTest {
         request.setCode("print('Hello')");
         request.setLanguage("INVALID");
         request.setTimeLimit(1000L);
-        request.setMemoryLimit(4194304.0);
+        request.setMemoryLimit(4194304L);
 
         JudgeRequest.TestCaseDto testCaseDto = new JudgeRequest.TestCaseDto();
         testCaseDto.setInput("test");
@@ -100,7 +98,7 @@ class JudgeControllerTest {
         request.setCode("invalid code");
         request.setLanguage("PYTHON");
         request.setTimeLimit(1000L);
-        request.setMemoryLimit(4194304.0);
+        request.setMemoryLimit(4194304L);
 
         JudgeRequest.TestCaseDto testCaseDto = new JudgeRequest.TestCaseDto();
         testCaseDto.setInput("test");
@@ -111,10 +109,10 @@ class JudgeControllerTest {
                 .status(SimpleResult.COMPILATION_ERROR)
                 .message("Compilation error")
                 .executionTime(0L)
-                .memoryUsed(0.0)
+                .memoryUsed(0L)
                 .build();
 
-        when(judgeService.judge(anyList(), anyString(), eq(Language.PYTHON), anyLong(), anyDouble()))
+        when(judgeService.judge(anyList(), anyString(), eq(Language.PYTHON), anyLong(), anyLong()))
                 .thenReturn(judgeResult);
 
         ResponseEntity<org.laoli.judge.model.dto.JudgeResponse> response = judgeController.judge(request);

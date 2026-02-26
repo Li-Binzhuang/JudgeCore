@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import java.util.List;
 import jakarta.validation.constraints.NotNull;
+
 /**
  * @Description HTTP判题请求DTO
  * @Author laoli
@@ -42,7 +43,7 @@ public class JudgeRequest {
      * 内存限制 (KB)
      */
     @NotNull(message = "内存限制不能为空")
-    private Double memoryLimit;
+    private Long memoryLimit;
 
     @Data
     public static class TestCaseDto {

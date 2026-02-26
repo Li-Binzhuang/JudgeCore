@@ -35,7 +35,7 @@ public class JudgeResponse {
     /**
      * 内存使用 (KB)
      */
-    private Double memoryUsed;
+    private Long memoryUsed;
 
     /**
      * 错误信息详情
@@ -61,7 +61,7 @@ public class JudgeResponse {
      * 成功响应构建器
      */
     public static JudgeResponse success(String status, String message, Long executionTime,
-            Double memoryUsed, CaseInfo caseInfo) {
+            Long memoryUsed, CaseInfo caseInfo) {
         return JudgeResponse.builder()
                 .status(status)
                 .message(message)

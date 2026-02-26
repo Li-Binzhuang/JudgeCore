@@ -57,8 +57,7 @@ public class JudgeController {
                         .body(JudgeResponse.error(
                                 SimpleResult.SYSTEM_ERROR.name(),
                                 "Unsupported language: " + request.getLanguage(),
-                                "Supported languages: JAVA, PYTHON, CPP, C, RUST, GO, PHP"
-                        ));
+                                "Supported languages: JAVA, PYTHON, CPP, C, RUST, GO, PHP"));
             }
 
             JudgeResult judgeResult = judgeService.judge(
@@ -66,8 +65,7 @@ public class JudgeController {
                     request.getCode(),
                     language,
                     request.getTimeLimit(),
-                    request.getMemoryLimit()
-            );
+                    request.getMemoryLimit());
 
             return buildResponse(judgeResult);
 
@@ -77,8 +75,7 @@ public class JudgeController {
                     .body(JudgeResponse.error(
                             SimpleResult.SYSTEM_ERROR.name(),
                             "Internal server error",
-                            e.getMessage()
-                    ));
+                            e.getMessage()));
         }
     }
 
@@ -107,7 +104,7 @@ public class JudgeController {
         String status = judgeResult.status().name();
         String message = judgeResult.message();
         Long executionTime = judgeResult.executionTime();
-        Double memoryUsed = judgeResult.memoryUsed();
+        Long memoryUsed = judgeResult.memoryUsed();
 
         if (judgeResult.caseResults() != null) {
             JudgeResponse.CaseInfo caseInfo = JudgeResponse.CaseInfo.builder()
@@ -117,12 +114,10 @@ public class JudgeController {
                     .build();
 
             return ResponseEntity.ok(JudgeResponse.success(
-                    status, message, executionTime, memoryUsed, caseInfo
-            ));
+                    status, message, executionTime, memoryUsed, caseInfo));
         } else {
             return ResponseEntity.ok(JudgeResponse.success(
-                    status, message, executionTime, memoryUsed, null
-            ));
+                    status, message, executionTime, memoryUsed, null));
         }
     }
 }

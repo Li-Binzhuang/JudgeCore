@@ -1,6 +1,5 @@
 package org.laoli.judge.service.execute;
 
-
 import org.laoli.judge.model.entity.CaseResult;
 import org.laoli.judge.model.entity.TestCase;
 
@@ -13,5 +12,6 @@ import java.nio.file.Path;
  * @Date 2025/4/20 12:30
  */
 public interface CodeExecutor {
-    CaseResult execute(TestCase testCase, Path workDir, String[] command,long timeLimit,double memoryLimit) throws IOException, InterruptedException;
+    CaseResult execute(TestCase testCase, Path workDir, String[] command, long timeLimit, long memoryLimit)
+            throws IOException, InterruptedException;
 }

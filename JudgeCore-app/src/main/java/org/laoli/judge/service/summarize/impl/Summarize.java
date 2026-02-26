@@ -18,24 +18,24 @@ public class Summarize implements ISummarize {
     @Override
     public JudgeResult summarizeResults(List<CaseResult> caseResults) {
 
-        if(caseResults.size()==1&&caseResults.get(0).status()!=SimpleResult.ACCEPTED){
+        if (caseResults.size() == 1 && caseResults.get(0).status() != SimpleResult.ACCEPTED) {
             return JudgeResult.builder()
-                .status(caseResults.get(0).status())
-                .message(caseResults.get(0).message())
-                .executionTime(caseResults.get(0).executionTime())
-                .memoryUsed(caseResults.get(0).memoryUsed())
-                .caseResults(caseResults.get(0))
-                .build();
+                    .status(caseResults.get(0).status())
+                    .message(caseResults.get(0).message())
+                    .executionTime(caseResults.get(0).executionTime())
+                    .memoryUsed(caseResults.get(0).memoryUsed())
+                    .caseResults(caseResults.get(0))
+                    .build();
         }
 
         // 计算总执行时间和最大内存使用
         long totalExecutionTime = caseResults.stream().mapToLong(CaseResult::executionTime).sum();
-        double maxMemoryUsed = caseResults.stream().mapToDouble(CaseResult::memoryUsed).max().orElse(0);
+        long maxMemoryUsed = caseResults.stream().mapToLong(CaseResult::memoryUsed).max().orElse(0);
 
         return JudgeResult.builder()
-               .status(SimpleResult.ACCEPTED)
-               .executionTime(totalExecutionTime)
-               .memoryUsed(maxMemoryUsed)
-               .build();
+                .status(SimpleResult.ACCEPTED)
+                .executionTime(totalExecutionTime)
+                .memoryUsed(maxMemoryUsed)
+                .build();
     }
 }

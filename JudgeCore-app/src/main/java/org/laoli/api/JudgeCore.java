@@ -790,10 +790,10 @@ public final class JudgeCore {
      * KB 字节
      * </pre>
      *
-     * <code>double memory_limit = 5;</code>
+     * <code>int64 memory_limit = 5;</code>
      * @return The memoryLimit.
      */
-    double getMemoryLimit();
+    long getMemoryLimit();
   }
   /**
    * <pre>
@@ -972,17 +972,17 @@ public final class JudgeCore {
     }
 
     public static final int MEMORY_LIMIT_FIELD_NUMBER = 5;
-    private double memoryLimit_ = 0D;
+    private long memoryLimit_ = 0L;
     /**
      * <pre>
      * KB 字节
      * </pre>
      *
-     * <code>double memory_limit = 5;</code>
+     * <code>int64 memory_limit = 5;</code>
      * @return The memoryLimit.
      */
     @java.lang.Override
-    public double getMemoryLimit() {
+    public long getMemoryLimit() {
       return memoryLimit_;
     }
 
@@ -1012,8 +1012,8 @@ public final class JudgeCore {
       if (timeLimit_ != 0L) {
         output.writeInt64(4, timeLimit_);
       }
-      if (java.lang.Double.doubleToRawLongBits(memoryLimit_) != 0) {
-        output.writeDouble(5, memoryLimit_);
+      if (memoryLimit_ != 0L) {
+        output.writeInt64(5, memoryLimit_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1038,9 +1038,9 @@ public final class JudgeCore {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(4, timeLimit_);
       }
-      if (java.lang.Double.doubleToRawLongBits(memoryLimit_) != 0) {
+      if (memoryLimit_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(5, memoryLimit_);
+          .computeInt64Size(5, memoryLimit_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
@@ -1065,9 +1065,8 @@ public final class JudgeCore {
           .equals(other.getCasesList())) return false;
       if (getTimeLimit()
           != other.getTimeLimit()) return false;
-      if (java.lang.Double.doubleToLongBits(getMemoryLimit())
-          != java.lang.Double.doubleToLongBits(
-              other.getMemoryLimit())) return false;
+      if (getMemoryLimit()
+          != other.getMemoryLimit()) return false;
       if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
@@ -1092,7 +1091,7 @@ public final class JudgeCore {
           getTimeLimit());
       hash = (37 * hash) + MEMORY_LIMIT_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          java.lang.Double.doubleToLongBits(getMemoryLimit()));
+          getMemoryLimit());
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -1238,7 +1237,7 @@ public final class JudgeCore {
         }
         bitField0_ = (bitField0_ & ~0x00000004);
         timeLimit_ = 0L;
-        memoryLimit_ = 0D;
+        memoryLimit_ = 0L;
         return this;
       }
 
@@ -1382,7 +1381,7 @@ public final class JudgeCore {
         if (other.getTimeLimit() != 0L) {
           setTimeLimit(other.getTimeLimit());
         }
-        if (other.getMemoryLimit() != 0D) {
+        if (other.getMemoryLimit() != 0L) {
           setMemoryLimit(other.getMemoryLimit());
         }
         this.mergeUnknownFields(other.getUnknownFields());
@@ -1439,11 +1438,11 @@ public final class JudgeCore {
                 bitField0_ |= 0x00000008;
                 break;
               } // case 32
-              case 41: {
-                memoryLimit_ = input.readDouble();
+              case 40: {
+                memoryLimit_ = input.readInt64();
                 bitField0_ |= 0x00000010;
                 break;
-              } // case 41
+              } // case 40
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -1889,17 +1888,17 @@ public final class JudgeCore {
         return this;
       }
 
-      private double memoryLimit_ ;
+      private long memoryLimit_ ;
       /**
        * <pre>
        * KB 字节
        * </pre>
        *
-       * <code>double memory_limit = 5;</code>
+       * <code>int64 memory_limit = 5;</code>
        * @return The memoryLimit.
        */
       @java.lang.Override
-      public double getMemoryLimit() {
+      public long getMemoryLimit() {
         return memoryLimit_;
       }
       /**
@@ -1907,11 +1906,11 @@ public final class JudgeCore {
        * KB 字节
        * </pre>
        *
-       * <code>double memory_limit = 5;</code>
+       * <code>int64 memory_limit = 5;</code>
        * @param value The memoryLimit to set.
        * @return This builder for chaining.
        */
-      public Builder setMemoryLimit(double value) {
+      public Builder setMemoryLimit(long value) {
 
         memoryLimit_ = value;
         bitField0_ |= 0x00000010;
@@ -1923,12 +1922,12 @@ public final class JudgeCore {
        * KB 字节
        * </pre>
        *
-       * <code>double memory_limit = 5;</code>
+       * <code>int64 memory_limit = 5;</code>
        * @return This builder for chaining.
        */
       public Builder clearMemoryLimit() {
         bitField0_ = (bitField0_ & ~0x00000010);
-        memoryLimit_ = 0D;
+        memoryLimit_ = 0L;
         onChanged();
         return this;
       }
@@ -2895,10 +2894,10 @@ public final class JudgeCore {
      * KB 字节
      * </pre>
      *
-     * <code>double memory_used = 4;</code>
+     * <code>int64 memory_used = 4;</code>
      * @return The memoryUsed.
      */
-    double getMemoryUsed();
+    long getMemoryUsed();
 
     /**
      * <code>.grpc.ReturnCaseInfo case_info = 5;</code>
@@ -3051,17 +3050,17 @@ public final class JudgeCore {
     }
 
     public static final int MEMORY_USED_FIELD_NUMBER = 4;
-    private double memoryUsed_ = 0D;
+    private long memoryUsed_ = 0L;
     /**
      * <pre>
      * KB 字节
      * </pre>
      *
-     * <code>double memory_used = 4;</code>
+     * <code>int64 memory_used = 4;</code>
      * @return The memoryUsed.
      */
     @java.lang.Override
-    public double getMemoryUsed() {
+    public long getMemoryUsed() {
       return memoryUsed_;
     }
 
@@ -3114,8 +3113,8 @@ public final class JudgeCore {
       if (executionTime_ != 0L) {
         output.writeInt64(3, executionTime_);
       }
-      if (java.lang.Double.doubleToRawLongBits(memoryUsed_) != 0) {
-        output.writeDouble(4, memoryUsed_);
+      if (memoryUsed_ != 0L) {
+        output.writeInt64(4, memoryUsed_);
       }
       if (((bitField0_ & 0x00000001) != 0)) {
         output.writeMessage(5, getCaseInfo());
@@ -3139,9 +3138,9 @@ public final class JudgeCore {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(3, executionTime_);
       }
-      if (java.lang.Double.doubleToRawLongBits(memoryUsed_) != 0) {
+      if (memoryUsed_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(4, memoryUsed_);
+          .computeInt64Size(4, memoryUsed_);
       }
       if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
@@ -3168,9 +3167,8 @@ public final class JudgeCore {
           .equals(other.getMessage())) return false;
       if (getExecutionTime()
           != other.getExecutionTime()) return false;
-      if (java.lang.Double.doubleToLongBits(getMemoryUsed())
-          != java.lang.Double.doubleToLongBits(
-              other.getMemoryUsed())) return false;
+      if (getMemoryUsed()
+          != other.getMemoryUsed()) return false;
       if (hasCaseInfo() != other.hasCaseInfo()) return false;
       if (hasCaseInfo()) {
         if (!getCaseInfo()
@@ -3196,7 +3194,7 @@ public final class JudgeCore {
           getExecutionTime());
       hash = (37 * hash) + MEMORY_USED_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          java.lang.Double.doubleToLongBits(getMemoryUsed()));
+          getMemoryUsed());
       if (hasCaseInfo()) {
         hash = (37 * hash) + CASE_INFO_FIELD_NUMBER;
         hash = (53 * hash) + getCaseInfo().hashCode();
@@ -3345,7 +3343,7 @@ public final class JudgeCore {
         status_ = "";
         message_ = "";
         executionTime_ = 0L;
-        memoryUsed_ = 0D;
+        memoryUsed_ = 0L;
         caseInfo_ = null;
         if (caseInfoBuilder_ != null) {
           caseInfoBuilder_.dispose();
@@ -3463,7 +3461,7 @@ public final class JudgeCore {
         if (other.getExecutionTime() != 0L) {
           setExecutionTime(other.getExecutionTime());
         }
-        if (other.getMemoryUsed() != 0D) {
+        if (other.getMemoryUsed() != 0L) {
           setMemoryUsed(other.getMemoryUsed());
         }
         if (other.hasCaseInfo()) {
@@ -3510,11 +3508,11 @@ public final class JudgeCore {
                 bitField0_ |= 0x00000004;
                 break;
               } // case 24
-              case 33: {
-                memoryUsed_ = input.readDouble();
+              case 32: {
+                memoryUsed_ = input.readInt64();
                 bitField0_ |= 0x00000008;
                 break;
-              } // case 33
+              } // case 32
               case 42: {
                 input.readMessage(
                     getCaseInfoFieldBuilder().getBuilder(),
@@ -3727,17 +3725,17 @@ public final class JudgeCore {
         return this;
       }
 
-      private double memoryUsed_ ;
+      private long memoryUsed_ ;
       /**
        * <pre>
        * KB 字节
        * </pre>
        *
-       * <code>double memory_used = 4;</code>
+       * <code>int64 memory_used = 4;</code>
        * @return The memoryUsed.
        */
       @java.lang.Override
-      public double getMemoryUsed() {
+      public long getMemoryUsed() {
         return memoryUsed_;
       }
       /**
@@ -3745,11 +3743,11 @@ public final class JudgeCore {
        * KB 字节
        * </pre>
        *
-       * <code>double memory_used = 4;</code>
+       * <code>int64 memory_used = 4;</code>
        * @param value The memoryUsed to set.
        * @return This builder for chaining.
        */
-      public Builder setMemoryUsed(double value) {
+      public Builder setMemoryUsed(long value) {
 
         memoryUsed_ = value;
         bitField0_ |= 0x00000008;
@@ -3761,12 +3759,12 @@ public final class JudgeCore {
        * KB 字节
        * </pre>
        *
-       * <code>double memory_used = 4;</code>
+       * <code>int64 memory_used = 4;</code>
        * @return This builder for chaining.
        */
       public Builder clearMemoryUsed() {
         bitField0_ = (bitField0_ & ~0x00000008);
-        memoryUsed_ = 0D;
+        memoryUsed_ = 0L;
         onChanged();
         return this;
       }
@@ -3988,11 +3986,11 @@ public final class JudgeCore {
       "put\030\001 \001(\t\022\027\n\017expected_output\030\002 \001(\t\"n\n\007Re" +
       "quest\022\014\n\004code\030\001 \001(\t\022\020\n\010language\030\002 \001(\t\022\031\n" +
       "\005cases\030\003 \003(\0132\n.grpc.Case\022\022\n\ntime_limit\030\004" +
-      " \001(\003\022\024\n\014memory_limit\030\005 \001(\001\"O\n\016ReturnCase" +
+      " \001(\003\022\024\n\014memory_limit\030\005 \001(\003\"O\n\016ReturnCase" +
       "Info\022\r\n\005input\030\001 \001(\t\022\027\n\017expected_output\030\002" +
       " \001(\t\022\025\n\ractual_output\030\003 \001(\t\"\201\001\n\010Response" +
       "\022\016\n\006status\030\001 \001(\t\022\017\n\007message\030\002 \001(\t\022\026\n\016exe" +
-      "cution_time\030\003 \001(\003\022\023\n\013memory_used\030\004 \001(\001\022\'" +
+      "cution_time\030\003 \001(\003\022\023\n\013memory_used\030\004 \001(\003\022\'" +
       "\n\tcase_info\030\005 \001(\0132\024.grpc.ReturnCaseInfo2" +
       "6\n\014JudgeService\022&\n\005Judge\022\r.grpc.Request\032" +
       "\016.grpc.ResponseB\034\n\rorg.laoli.apiB\tJudgeC" +

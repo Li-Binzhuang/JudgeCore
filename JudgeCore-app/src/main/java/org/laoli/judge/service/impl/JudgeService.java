@@ -44,11 +44,13 @@ public class JudgeService implements IJudgeService {
     private CompilerFactory compilerFactory;
     @Resource
     private ISummarize summarize;
+
     /**
      * 主判题方法，处理一个完整的提交
      */
     @Override
-    public JudgeResult judge(List<TestCase> testCases, String sourceCode, Language language,long timeLimit,double memoryLimit) {
+    public JudgeResult judge(List<TestCase> testCases, String sourceCode, Language language, long timeLimit,
+            long memoryLimit) {
         // 判空
         if (testCases == null || testCases.isEmpty() || sourceCode == null || sourceCode.isEmpty()) {
             return JudgeResult.builder()
@@ -56,12 +58,12 @@ public class JudgeService implements IJudgeService {
                     .message("Invalid input")
                     .build();
         }
-        if(timeLimit<1000 && memoryLimit<(1<<22)){
-            timeLimit=1000;
-            memoryLimit=1<<22;
+        if (timeLimit < 1000 && memoryLimit < (1 << 22)) {
+            timeLimit = 1000;
+            memoryLimit = 1 << 22;
         }
         Path tempDir = null;
-        //使用compiler工厂获取对应语言的编译器
+        // 使用compiler工厂获取对应语言的编译器
         Compiler compiler = compilerFactory.getCompiler(language);
         try {
             // 创建临时工作目录
@@ -71,12 +73,12 @@ public class JudgeService implements IJudgeService {
             JudgeResult compileResult = compiler.compile(sourceCode, tempDir);
 
             // 如果编译出错，直接返回
-            if (compileResult.status()==SimpleResult.COMPILATION_ERROR) {
+            if (compileResult.status() == SimpleResult.COMPILATION_ERROR) {
                 return compileResult;
             }
 
-            //并发执行所有测试用例
-            List<CaseResult> caseResults = runTestsConcurrently(testCases, tempDir, language,timeLimit,memoryLimit);
+            // 并发执行所有测试用例
+            List<CaseResult> caseResults = runTestsConcurrently(testCases, tempDir, language, timeLimit, memoryLimit);
 
             // 汇总结果
             return summarize.summarizeResults(caseResults);
@@ -91,21 +93,23 @@ public class JudgeService implements IJudgeService {
                 .status(SimpleResult.SYSTEM_ERROR).build();
     }
 
-    private synchronized List<CaseResult> runTestsConcurrently(List<TestCase> testCases, Path tempDir, Language language,long timeLimit,double memoryLimit) {
+    private synchronized List<CaseResult> runTestsConcurrently(List<TestCase> testCases, Path tempDir,
+            Language language, long timeLimit, long memoryLimit) {
         // 并行执行所有测试用例
         String[] command = languageCommandFactory.getCommand(language, tempDir);
         List<Future<CaseResult>> futures = new ArrayList<>();
         testCases.forEach(testCase -> {
-            futures.add(executorService.submit(() -> executor.execute(testCase, tempDir,command,timeLimit,memoryLimit)));
+            futures.add(
+                    executorService.submit(() -> executor.execute(testCase, tempDir, command, timeLimit, memoryLimit)));
         });
 
         List<CaseResult> caseResults = new ArrayList<>();
         for (Future<CaseResult> future : futures) {
             try {
                 CaseResult caseResult = future.get();
-                //如果有一个测试用例执行失败，则直接返回,后续需要优化
-                if(caseResult.status()!=SimpleResult.ACCEPTED){
-                    caseResults=null;//清空caseResults
+                // 如果有一个测试用例执行失败，则直接返回,后续需要优化
+                if (caseResult.status() != SimpleResult.ACCEPTED) {
+                    caseResults = null;// 清空caseResults
                     return Collections.singletonList(caseResult);
                 }
                 caseResults.add(future.get());
@@ -121,14 +125,14 @@ public class JudgeService implements IJudgeService {
             try {
                 // 递归删除目录
                 Files.walk(tempDir)
-                    .sorted(Comparator.reverseOrder())
-                    .forEach(path -> {
-                        try {
-                            Files.delete(path);
-                        } catch (IOException e) {
-                            log.error("Error deleting file: {}", e.getMessage());
-                        }
-                    });
+                        .sorted(Comparator.reverseOrder())
+                        .forEach(path -> {
+                            try {
+                                Files.delete(path);
+                            } catch (IOException e) {
+                                log.error("Error deleting file: {}", e.getMessage());
+                            }
+                        });
             } catch (IOException e) {
                 log.error("Error deleting directory: {}", e.getMessage());
             }

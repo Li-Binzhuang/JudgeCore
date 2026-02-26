@@ -9,6 +9,6 @@ import org.laoli.judge.model.enums.SimpleResult;
  * @create 2025/4/19 13:37
  */
 @Builder
-public record CaseResult(SimpleResult status, String message,long executionTime, double memoryUsed, String actualOutput,
-                         String expectedOutput, String input) {
+public record CaseResult(SimpleResult status, String message, long executionTime, Long memoryUsed, String actualOutput,
+        String expectedOutput, String input) {
 }

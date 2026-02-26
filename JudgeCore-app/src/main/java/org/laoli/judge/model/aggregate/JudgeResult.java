@@ -10,6 +10,6 @@ import org.laoli.judge.model.enums.SimpleResult;
  * @create 2025/4/19 13:37
  */
 @Builder
-public record JudgeResult(SimpleResult status, String message, long executionTime, double memoryUsed,
-                          CaseResult caseResults) {
+public record JudgeResult(SimpleResult status, String message, long executionTime, long memoryUsed,
+        CaseResult caseResults) {
 }

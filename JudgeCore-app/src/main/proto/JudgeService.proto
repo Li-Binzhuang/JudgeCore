@@ -17,7 +17,7 @@ message Request {
     string language = 2;
     repeated Case cases = 3;
     int64 time_limit = 4; // ms 毫秒
-    double memory_limit = 5;  // KB 字节
+    int64 memory_limit = 5;  // KB 字节
 }
 
 // 定义返回的测试用例信息
@@ -32,7 +32,7 @@ message Response {
     string status = 1;
     string message = 2;
     int64 execution_time = 3; // ms 毫秒
-    double memory_used = 4;  // KB 字节
+    int64 memory_used = 4;  // KB 字节
     ReturnCaseInfo case_info = 5;
 }
 service JudgeService {

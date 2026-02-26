@@ -13,5 +13,5 @@ import java.util.List;
  */
 
 public interface IJudgeService {
-    JudgeResult judge(List<TestCase> testCases, String sourceCode, Language language, long timeLimit, double memoryLimit);
+    JudgeResult judge(List<TestCase> testCases, String sourceCode, Language language, long timeLimit, long memoryLimit);
 }
