@@ -2,39 +2,33 @@ package org.laoli.judge.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.laoli.judge.model.aggregate.JudgeResult;
+import org.laoli.judge.model.dto.CodeTestRequest;
+import org.laoli.judge.model.dto.CodeTestResponse;
 import org.laoli.judge.model.dto.JudgeRequest;
 import org.laoli.judge.model.dto.JudgeResponse;
 import org.laoli.judge.model.entity.TestCase;
 import org.laoli.judge.model.enums.Language;
 import org.laoli.judge.model.enums.SimpleResult;
 import org.laoli.judge.service.IJudgeService;
+import org.laoli.judge.service.test.ICodeTestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * @Description HTTP判题控制器，提供RESTful接口
- * @Author laoli
- * @Date 2025/4/20 15:58
- */
 @RestController
 @RequestMapping("/api/judge")
 @Slf4j
 public class JudgeController {
 
     private final IJudgeService judgeService;
+    private final ICodeTestService codeTestService;
 
-    public JudgeController(IJudgeService judgeService) {
+    public JudgeController(IJudgeService judgeService, ICodeTestService codeTestService) {
         this.judgeService = judgeService;
+        this.codeTestService = codeTestService;
     }
 
-    /**
-     * 判题接口
-     *
-     * @param request 判题请求
-     * @return 判题结果
-     */
     @PostMapping
     public ResponseEntity<JudgeResponse> judge(@RequestBody JudgeRequest request) {
         log.info("Received judge request - Language: {}, TimeLimit: {}ms, MemoryLimit: {}KB",
@@ -79,25 +73,53 @@ public class JudgeController {
         }
     }
 
-    /**
-     * 健康检查接口
-     *
-     * @return 服务状态
-     */
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("OK");
     }
 
-    /**
-     * 获取支持的编程语言列表
-     *
-     * @return 支持的语言列表
-     */
     @GetMapping("/languages")
     public ResponseEntity<List<String>> getSupportedLanguages() {
         List<String> languages = Language.getSupportLanguage();
         return ResponseEntity.ok(languages);
+    }
+
+    @PostMapping("/test")
+    public ResponseEntity<CodeTestResponse> executeTest(@RequestBody CodeTestRequest request) {
+        log.info("Received code test request - Language: {}, TimeLimit: {}ms, MemoryLimit: {}KB, TestCases: {}",
+                request.getLanguage(), request.getTimeLimit(), request.getMemoryLimit(),
+                request.getTestCases() != null ? request.getTestCases().size() : 0);
+
+        try {
+            CodeTestResponse response = codeTestService.executeTest(request);
+            log.info("Code test completed - Status: {}, Passed: {}/{}",
+                    response.getStatus(), response.getPassedCount(), response.getTotalCount());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error processing code test request: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError()
+                    .body(CodeTestResponse.buildError(
+                            CodeTestResponse.TestStatus.SYSTEM_ERROR,
+                            "Internal server error: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/test/single")
+    public ResponseEntity<CodeTestResponse> executeSingleTest(@RequestBody CodeTestRequest request) {
+        log.info("Received single test request - Language: {}, TimeLimit: {}ms, MemoryLimit: {}KB",
+                request.getLanguage(), request.getTimeLimit(), request.getMemoryLimit());
+
+        try {
+            CodeTestResponse response = codeTestService.executeSingleTest(request);
+            log.info("Single test completed - Status: {}", response.getStatus());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error processing single test request: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError()
+                    .body(CodeTestResponse.buildError(
+                            CodeTestResponse.TestStatus.SYSTEM_ERROR,
+                            "Internal server error: " + e.getMessage()));
+        }
     }
 
     private ResponseEntity<JudgeResponse> buildResponse(JudgeResult judgeResult) {

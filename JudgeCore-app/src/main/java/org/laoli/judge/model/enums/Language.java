@@ -23,7 +23,6 @@ public enum Language {
     RUST("RUST"),
     GO("GO"),
     PHP("PHP");
-
     private final String language;
 
     public static List<String> getSupportLanguage() {

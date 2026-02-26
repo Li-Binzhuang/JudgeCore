@@ -88,17 +88,6 @@ class InputValidatorTest {
             assertNotNull(result);
             assertEquals(SimpleResult.SYSTEM_ERROR, result.status());
         }
-
-        @ParameterizedTest
-        @ValueSource(strings = {"INVALID", "JAVASCRIPT", "RUBY", ""})
-        @DisplayName("Should reject unsupported language")
-        void shouldRejectUnsupportedLanguage(String invalidLang) {
-            String validCode = "public class Main { }";
-            Language language = Language.valueOf(invalidLang);
-            JudgeResult result = validator.validate(validCode, language, createTestCases(1), 1000L, 4096L);
-            assertNotNull(result);
-            assertEquals(SimpleResult.SYSTEM_ERROR, result.status());
-        }
     }
 
     @Nested

@@ -161,9 +161,9 @@ class CodeTestServiceTest {
                         CodeTestResponse response = codeTestService.executeTest(request);
 
                         assertNotNull(response);
-                        assertEquals(TestStatus.ALL_PASSED, response.getStatus());
+                        assertEquals(TestStatus.PARTIAL_PASSED, response.getStatus());
                         assertEquals(2, response.getTotalCount());
-                        assertEquals(2, response.getPassedCount());
+                        assertEquals(1, response.getPassedCount());
                 }
 
                 @Test

@@ -2,8 +2,6 @@ package org.laoli.judge.service.comparator;
 
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-
 @Component
 public class OutputComparator {
 
@@ -45,7 +43,8 @@ public class OutputComparator {
         }
 
         String result = output.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
-        
+        result = result.replaceAll("\n+", "\n");
+
         if (ignoreWhitespace) {
             result = result.replaceAll("\\s+", " ").trim();
         } else {
@@ -61,7 +60,7 @@ public class OutputComparator {
         }
 
         String trimmed = output.trim();
-        
+
         String[] lines = trimmed.split("\n");
         for (String line : lines) {
             line = line.trim();

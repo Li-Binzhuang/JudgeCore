@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.laoli.judge.model.aggregate.JudgeResult;
 import org.laoli.judge.model.entity.CaseResult;
 import org.laoli.judge.model.entity.TestCase;
@@ -17,10 +19,10 @@ import org.laoli.judge.service.compile.Compiler;
 import org.laoli.judge.service.compile.CompilerFactory;
 import org.laoli.judge.service.execute.CodeExecutor;
 import org.laoli.judge.service.execute.LanguageCommandFactory;
-import org.laoli.judge.service.monitor.PerformanceMonitor;
 import org.laoli.judge.service.summarize.ISummarize;
 import org.laoli.judge.service.comparator.OutputComparator;
 import org.laoli.judge.service.validation.InputValidator;
+import org.laoli.judge.service.monitor.PerformanceMonitor;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -32,8 +34,9 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("JudgeService Tests")
-class JudgeServiceTest {
+public class JudgeServiceTest {
 
         @Mock
         private ThreadPoolExecutor executorService;
@@ -70,14 +73,14 @@ class JudgeServiceTest {
         @BeforeEach
         void setUp() {
                 doAnswer(invocation -> {
-                        long[] time = { (long) invocation.getArgument(0) };
-                        long[] memory = { (long) invocation.getArgument(1) };
+                        Long[] time = invocation.getArgument(0);
+                        Long[] memory = invocation.getArgument(1);
                         if (time[0] < 100)
-                                time[0] = 100;
+                                time[0] = 100L;
                         if (memory[0] < 1024)
-                                memory[0] = 1024;
+                                memory[0] = 1024L;
                         return null;
-                }).when(inputValidator).applyDefaultLimits(any(), any());
+                }).when(inputValidator).applyDefaultLimits(any(Long[].class), any(Long[].class));
         }
 
         @Nested

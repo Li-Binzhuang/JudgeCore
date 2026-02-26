@@ -8,11 +8,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.laoli.judge.model.aggregate.JudgeResult;
 import org.laoli.judge.model.enums.Language;
 import org.laoli.judge.model.entity.TestCase;
+import org.laoli.judge.model.enums.SimpleResult;
 import org.laoli.judge.service.IJudgeService;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @Description TODO
@@ -57,6 +60,7 @@ public class LocalTest {
         log.info(
                 "JavaJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                 judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
+        assertEquals(SimpleResult.ACCEPTED, judge.status());
     }
 
     @Test
@@ -73,6 +77,7 @@ public class LocalTest {
         log.info(
                 "CppJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                 judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
+        assertEquals(SimpleResult.ACCEPTED, judge.status());
 
     }
 
@@ -85,6 +90,7 @@ public class LocalTest {
         log.info(
                 "PythonJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                 judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
+        assertEquals(SimpleResult.ACCEPTED, judge.status());
     }
 
     @Test
@@ -102,6 +108,7 @@ public class LocalTest {
         JudgeResult judge = judgeService.judge(testCases, cCode, Language.C, timeLimit, memoryLimit);
         log.info("CJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                 judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
+        assertEquals(SimpleResult.ACCEPTED, judge.status());
     }
 
     @Test
@@ -119,6 +126,7 @@ public class LocalTest {
         JudgeResult judge = judgeService.judge(testCases, goCode, Language.GO, timeLimit, memoryLimit);
         log.info("GoJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                 judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
+        assertEquals(SimpleResult.ACCEPTED, judge.status());
     }
 
     @Test
@@ -132,6 +140,7 @@ public class LocalTest {
         log.info(
                 "PhpJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                 judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
+        assertEquals(SimpleResult.ACCEPTED, judge.status());
     }
 
     @Test
@@ -160,5 +169,6 @@ public class LocalTest {
         log.info(
                 "RustJudgeResult - Status: {}, Message: {}, Execution Time: {} ms, Memory Used: {} KB, Case Results: {}",
                 judge.status(), judge.message(), judge.executionTime(), judge.memoryUsed(), judge.caseResults());
+        assertEquals(SimpleResult.ACCEPTED, judge.status());
     }
 }

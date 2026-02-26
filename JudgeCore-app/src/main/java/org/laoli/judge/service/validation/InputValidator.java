@@ -101,7 +101,7 @@ public class InputValidator {
     }
 
     private boolean isValidLanguage(Language language) {
-        return language != null;
+        return language != null&&Language.getSupportLanguage().contains(language.getLanguage());
     }
 
     private boolean containsDangerousCode(String sourceCode, Language language) {
