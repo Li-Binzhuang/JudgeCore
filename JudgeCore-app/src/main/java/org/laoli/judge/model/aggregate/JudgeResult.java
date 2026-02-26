@@ -4,6 +4,8 @@ import lombok.Builder;
 import org.laoli.judge.model.entity.*;
 import org.laoli.judge.model.enums.SimpleResult;
 
+import java.util.List;
+
 /**
  * @author laoli
  * @description 所有测试用例的汇总结果
@@ -11,5 +13,5 @@ import org.laoli.judge.model.enums.SimpleResult;
  */
 @Builder
 public record JudgeResult(SimpleResult status, String message, long executionTime, long memoryUsed,
-        CaseResult caseResults) {
+                          CaseResult caseResults) {
 }
