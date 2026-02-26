@@ -3,6 +3,10 @@ package org.laoli.judge.model.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @description 语言支持枚举
  * @author laoli
@@ -19,5 +23,12 @@ public enum Language {
     RUST("RUST"),
     GO("GO"),
     PHP("PHP");
-    private final String Language;
+
+    private final String language;
+
+    public static List<String> getSupportLanguage() {
+        return Arrays.stream(Language.values())
+                .map(Language::getLanguage)
+                .collect(Collectors.toList());
+    }
 }

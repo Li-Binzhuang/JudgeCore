@@ -1,6 +1,11 @@
 server:
   port: 8091
 
+# 沙箱配置
+sandbox:
+  enabled: true
+  command: firejail
+
 # 线程池配置
 thread:
   pool:

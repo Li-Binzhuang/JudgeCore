@@ -1,4 +1,16 @@
 
+# 沙箱配置
+sandbox:
+  enabled: false
+  command: firejail
+  common-options:
+    quiet: true
+    seccomp: true
+    net-none: true
+    no-groups: true
+    no-new-privs: true
+    caps-drop: all
+
 # 线程池配置
 thread:
   pool:
@@ -14,6 +26,10 @@ grpc:
   server:
     port: 9000
 
+# HTTP服务器配置
+server:
+  port: 8080
+
 # 日志
 logging:
   level:
@@ -21,4 +37,4 @@ logging:
   config: classpath:logback-spring.xml
 spring:
   main:
-    web-application-type: none
+    web-application-type: servlet
