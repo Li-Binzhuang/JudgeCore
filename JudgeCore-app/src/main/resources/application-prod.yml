@@ -1,8 +1,6 @@
 spring:
   config:
     name: JudgeCore-app
-  profiles:
-    active: prod
   main:
     web-application-type: servlet
 
