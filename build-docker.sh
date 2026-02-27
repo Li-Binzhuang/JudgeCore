@@ -19,7 +19,7 @@ echo "[1/4] Building Java application..."
 cd "$(dirname "$0")"
 mvn clean package -DskipTests -Pprod
 
-if [ ! -f "JudgeCore-app/target/JudgeCore-app-${PROJECT_VERSION}.jar" ]; then
+if [ ! -f "JudgeCore-app/target/JudgeCore-app.jar" ]; then
     echo "Error: JAR file not found!"
     exit 1
 fi
@@ -27,7 +27,7 @@ fi
 echo ""
 echo "[2/4] Preparing Docker build context..."
 mkdir -p docker-build
-cp JudgeCore-app/target/JudgeCore-app-${PROJECT_VERSION}.jar docker-build/
+cp JudgeCore-app/target/JudgeCore-app.jar docker-build/
 cp Dockerfile docker-build/
 cd docker-build
 

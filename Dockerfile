@@ -34,7 +34,7 @@ RUN useradd -m -s /bin/bash judgeuser
 
 WORKDIR /app
 
-COPY target/JudgeCore-app-0.0.1-SNAPSHOT.jar app.jar
+COPY target/JudgeCore-app.jar app.jar
 
 RUN mkdir -p /app/workdir /app/logs && \
     chown -R judgeuser:judgeuser /app
