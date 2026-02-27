@@ -6,7 +6,6 @@ LABEL description="JudgeCore - Online Code Judge System"
 ENV DEBIAN_FRONTEND=noninteractive \
     JAVA_HOME=/opt/java/openjdk \
     PATH=/opt/java/openjdk/bin:/usr/local/go/bin:$PATH \
-    GOROOT=/usr/local/go \
     GOPATH=/root/go \
     PYTHONUNBUFFERED=1
 
