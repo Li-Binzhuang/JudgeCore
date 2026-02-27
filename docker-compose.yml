@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  judgecore:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: judgecore
+    image: judgecore:latest
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - JAVA_OPTS=-Xms512m -Xmx2g -XX:+UseG1GC
+      - SERVER_PORT=8080
+      - GRPC_SERVER_PORT=9000
+    volumes:
+      - judge-workdir:/app/workdir
+      - judge-logs:/app/logs
+    restart: unless-stopped
+    cpus: '4'
+    mem_limit: 4g
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_ADMIN
+    networks:
+      - judge-network
+
+  firejail-config:
+    image: alpine:latest
+    container_name: firejail-helper
+    volumes:
+      - /etc/firejail:/etc/firejail:ro
+    command: ["sh", "-c", "echo 'Firejail configuration available'"]
+    networks:
+      - judge-network
+
+volumes:
+  judge-workdir:
+    driver: local
+  judge-logs:
+    driver: local
+
+networks:
+  judge-network:
+    driver: bridge

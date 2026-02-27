@@ -1,0 +1,14 @@
+.git
+.gitignore
+.mvn
+target
+!JudgeCore-app/target
+.idea
+*.iml
+.vscode
+.DS_Store
+*.log
+docker-build/
+docs/
+API_DOCUMENTATION.md
+build-docker.sh

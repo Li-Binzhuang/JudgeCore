@@ -1,7 +1,6 @@
-
 # 沙箱配置
 sandbox:
-  enabled: false
+  enabled: true
   command: firejail
   common-options:
     quiet: true
