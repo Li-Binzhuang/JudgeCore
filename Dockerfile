@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     php \
     rustc \
     cargo \
-    go \
+    golang-go \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
