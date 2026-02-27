@@ -1,8 +1,8 @@
 .git
 .gitignore
 .mvn
-target
-!JudgeCore-app/target
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
 .idea
 *.iml
 .vscode
@@ -12,3 +12,4 @@ docker-build/
 docs/
 API_DOCUMENTATION.md
 build-docker.sh
+.github/
