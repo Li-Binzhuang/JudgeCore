@@ -19,7 +19,7 @@ services:
       - judge-workdir:/app/workdir
       - judge-logs:/app/logs
     restart: unless-stopped
-    cpus: '4'
+    cpus: '2'
     mem_limit: 4g
     security_opt:
       - seccomp:unconfined
