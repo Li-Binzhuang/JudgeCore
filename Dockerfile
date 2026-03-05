@@ -1,11 +1,19 @@
+FROM maven:3.9.9-eclipse-temurin-17 AS builder
+
+WORKDIR /build
+COPY pom.xml ./
+COPY JudgeCore-app/pom.xml ./JudgeCore-app/pom.xml
+COPY JudgeCore-app/src ./JudgeCore-app/src
+RUN mvn -pl JudgeCore-app -am clean package -DskipTests
+
 FROM ubuntu:22.04
 
 LABEL maintainer="laoli <3180628481@qq.com>"
 LABEL description="JudgeCore - Online Code Judge System"
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    JAVA_HOME=/opt/java/openjdk \
-    PATH=/opt/java/openjdk/bin:/usr/local/go/bin:$PATH \
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+    PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:/usr/local/go/bin:$PATH \
     GOPATH=/root/go \
     PYTHONUNBUFFERED=1
 
@@ -27,13 +35,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-RUN pip3 install  --no-cache-dir protobuf==3.20.3
+RUN pip3 install --no-cache-dir protobuf==3.20.3
 
 RUN useradd -m -s /bin/bash judgeuser
 
 WORKDIR /app
-
-COPY JudgeCore-app/target/JudgeCore-app.jar app.jar
+COPY --from=builder /build/JudgeCore-app/target/JudgeCore-app.jar /app/app.jar
 
 RUN mkdir -p /app/workdir /app/logs && \
     chown -R judgeuser:judgeuser /app
@@ -45,4 +52,4 @@ EXPOSE 8080 9000
 ENV JAVA_OPTS="-Xms512m -Xmx2g -XX:+UseG1GC" \
     SPRING_PROFILES_ACTIVE=prod
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
